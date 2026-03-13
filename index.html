@@ -224,11 +224,17 @@ const SHEET2_TAB   = 'All Submissions';
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Sheet 1 column indices (1-based)
+// A=1 Project ID, B=2 Date, C=3 Charity Name, D=4 Project Type,
+// E=5 Volunteers, F=6 Hours spent, G=7 Support hours, H=8 $ consulting,
+// I=9 Vols post, J=10 Hours post, K=11 Products, L=12 Students,
+// M=13 Indirect hours, N=14 Grand total hours spent
+// O onwards = survey columns
 const COL = {
   PROJECT_ID:1, DATE:2, CHARITY:3, TYPE:4, VOLS_PROJECT:5, HOURS_PROJECT:6,
   HOURS_SUPPORT:7, STUDENTS:12, GRAND_TOTAL:14,
   PRE_DATA:15, POST_DATA:16, PRE_LITERACY:17, POST_LITERACY:18,
-  PRE_IMPACT:21, POST_IMPACT:22, PRE_DECISIONS:23, POST_DECISIONS:24,
+  PRE_TOOLS:19, POST_SUPPORT:20, PRE_IMPACT:21, POST_IMPACT:22,
+  PRE_DECISIONS:23, POST_DECISIONS:24,
   OVERALL_SAT:33, LIKELY_RECOMMEND:34, QUOTES:35,
 };
 
@@ -312,16 +318,18 @@ function mergeOrgs(rows) {
   const map = {};
   rows.forEach(row => {
     const raw = v(row, COL.CHARITY);
-    const key = raw.toLowerCase().replace(/\s*\(.*?\)/g,'').trim();
-    const name = raw.replace(/\s*\(.*?\)/g,'').trim();
+    const normalised = raw.replace(/\s*\(.*?\)/g,'').trim().replace(/[Cc]ollorado/g,'Colorado');
+    const key = normalised.toLowerCase();
+    const name = normalised;
     if (!map[key]) map[key] = { name, types:new Set(), vols:0, hours:0, vizHours:0, students:0, sat:[], recommend:[], quotes:[], surveyRows:[] };
     const o = map[key];
     const type = v(row, COL.TYPE).toLowerCase();
     o.types.add(type);
     o.vols += n(row, COL.VOLS_PROJECT) || 0;
-    o.hours += n(row, COL.GRAND_TOTAL) || n(row, COL.HOURS_PROJECT) || 0;
+    const rowHours = n(row, COL.GRAND_TOTAL) || n(row, COL.HOURS_PROJECT) || 0;
+    o.hours += rowHours;
     o.students += n(row, COL.STUDENTS) || 0;
-    if (type.includes('visuali')) o.vizHours += n(row, COL.GRAND_TOTAL) || n(row, COL.HOURS_PROJECT) || 0;
+    if (type.includes('visuali')) o.vizHours += rowHours;
     const sat = n(row, COL.OVERALL_SAT);
     if (sat) o.sat.push(sat);
     const rec = n(row, COL.LIKELY_RECOMMEND);
