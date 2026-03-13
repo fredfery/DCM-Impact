@@ -3,338 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Summary | Impact Dashboard</title>
+    <title>Kheyti - DataChangeMakers Project Summary</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Library for PNG Export -->
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .chart-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .chart-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
-        /* Ensure screenshot includes background colors */
-        #dashboardContainer { padding: 40px; background-color: #f1f5f9; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+        }
+        @media (min-width: 768px) {
+            .chart-container.h-bar-chart { height: 400px; }
+        }
+        .carousel-container {
+            overflow: hidden;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 16px;
+            background-color: #ffffff;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+        .carousel-slide {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .carousel-image-container {
+            height: 500px; 
+            background-color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .carousel-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s ease;
+        }
+        .placeholder-card {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #06D6A0 0%, #118AB2 100%);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+        .btn-nav {
+            background-color: rgba(255, 255, 255, 0.9);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        .btn-nav:hover {
+            background-color: white;
+            transform: scale(1.1);
+        }
     </style>
 </head>
-<body class="bg-[#f1f5f9] text-slate-900 min-h-screen pb-12">
+<body class="text-gray-800">
 
-    <div id="dashboardContainer" class="max-w-7xl mx-auto space-y-8 pt-8">
-        
-        <!-- Header Section -->
-        <header class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-            <div class="flex items-center gap-6">
-                <!-- Enlarged Logo -->
-                <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center shadow-xl shadow-blue-200 shrink-0">
-                    <i data-lucide="layout-dashboard" class="text-white w-12 h-12"></i>
-                </div>
-                <div>
-                    <h1 class="text-3xl font-black tracking-tight flex items-center gap-2">
-                        Project Summary
-                    </h1>
-                    <p class="text-slate-400 text-sm font-semibold uppercase tracking-widest flex items-center gap-1.5 mt-1">
-                        <i data-lucide="target" class="w-4 h-4"></i> Stats vs. Impact
-                    </p>
-                </div>
-            </div>
-            
-            <div class="flex flex-col sm:flex-row items-center gap-3">
-                <!-- Search and Filters -->
-                <div class="relative w-full sm:w-64 group">
-                    <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors w-4 h-4"></i>
-                    <input 
-                        type="text" 
-                        id="searchInput"
-                        placeholder="Search charity..." 
-                        class="w-full bg-slate-50 border border-slate-100 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all"
-                    >
-                </div>
-                
-                <!-- Action Buttons -->
-                <div class="flex items-center gap-2">
-                    <select 
-                        id="typeFilter"
-                        class="bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 focus:ring-0 cursor-pointer px-4 py-2.5 outline-none h-[42px]"
-                    >
-                        <option value="All">All Categories</option>
-                        <option value="Data visualisation">Data visualisation</option>
-                        <option value="Data wrangling">Data wrangling</option>
-                        <option value="Health Check">Health Check</option>
-                    </select>
+    <div class="max-w-5xl mx-auto p-4 md:p-12">
 
-                    <button 
-                        onclick="exportDashboard()"
-                        class="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 h-[42px]"
-                    >
-                        <i data-lucide="download" class="w-4 h-4"></i>
-                        <span>Export PNG</span>
-                    </button>
-                </div>
+        <!-- Header -->
+        <header class="text-center mb-12 md:mb-20">
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-12 mb-8">
+                <!-- Increased DCM logo size to h-28 -->
+                <img src="https://static.wixstatic.com/media/2608ce_4ffd1217cfad49bb950c7e852ea7dbc0~mv2.png/v1/crop/x_0,y_84,w_1280,h_857/fill/w_133,h_89,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/FullLogo_Transparent.png" alt="Data ChangeMakers Logo" class="h-28 w-auto object-contain">
+                <img src="https://www.rippleworks.org/wp-content/uploads/2025/02/Kheyti-logo-2x1-ENG-green-tag-no-bkg-high-res-copy.png" alt="Kheyti Logo" class="h-24 w-auto object-contain">
             </div>
+            <h1 class="text-5xl md:text-6xl font-black text-[#073B4C] mb-4 tracking-tight">Project Summary</h1>
+            <p class="text-2xl md:text-3xl font-light text-[#118AB2] max-w-2xl mx-auto">Visualizing a decade of growth and climate resilience for smallholder farmers.</p>
         </header>
 
-        <!-- KPI Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between chart-card">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 rounded-2xl bg-blue-50 text-blue-600"><i data-lucide="users"></i></div>
-                    <span class="text-[10px] font-bold bg-slate-50 text-slate-500 px-2 py-1 rounded-full border border-slate-100 uppercase">+12%</span>
-                </div>
-                <div>
-                    <h4 id="statVolunteers" class="text-3xl font-black text-slate-900 leading-tight tracking-tight">0</h4>
-                    <p class="text-sm font-semibold text-slate-500 mt-1">Total Volunteers</p>
-                    <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-50">
-                        <div class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
-                        <p class="text-[11px] font-medium text-slate-400">Active contributors</p>
-                    </div>
-                </div>
+        <!-- KPI Section -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-16">
+            <div class="bg-white rounded-2xl shadow-xl p-8 border-b-8 border-[#FF6B6B] transform transition hover:-translate-y-1">
+                <span class="text-6xl font-black text-[#073B4C]">392</span>
+                <h3 class="text-xl font-bold text-gray-500 mt-2 uppercase tracking-widest">Volunteer Hours</h3>
             </div>
+            <div class="bg-white rounded-2xl shadow-xl p-8 border-b-8 border-[#FFD166] transform transition hover:-translate-y-1">
+                <span class="text-6xl font-black text-[#073B4C]">19</span>
+                <h3 class="text-xl font-bold text-gray-500 mt-2 uppercase tracking-widest">Volunteers</h3>
+            </div>
+            <div class="bg-white rounded-2xl shadow-xl p-8 border-b-8 border-[#06D6A0] transform transition hover:-translate-y-1">
+                <span class="text-6xl font-black text-[#073B4C]">9</span>
+                <h3 class="text-xl font-bold text-gray-500 mt-2 uppercase tracking-widest">Countries</h3>
+            </div>
+        </section>
 
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between chart-card">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 rounded-2xl bg-emerald-50 text-emerald-600"><i data-lucide="clock"></i></div>
-                </div>
-                <div>
-                    <h4 id="statHours" class="text-3xl font-black text-slate-900 leading-tight tracking-tight">0</h4>
-                    <p class="text-sm font-semibold text-slate-500 mt-1">Volunteer Hours</p>
-                    <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-50">
-                        <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                        <p class="text-[11px] font-medium text-slate-400">Total time spent</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between chart-card">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 rounded-2xl bg-amber-50 text-amber-600"><i data-lucide="globe"></i></div>
-                </div>
-                <div>
-                    <h4 id="statProjects" class="text-3xl font-black text-slate-900 leading-tight tracking-tight">0</h4>
-                    <p class="text-sm font-semibold text-slate-500 mt-1">Countries</p>
-                    <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-50">
-                        <div class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
-                        <p class="text-[11px] font-medium text-slate-400">Global reach</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between chart-card">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 rounded-2xl bg-purple-50 text-purple-600"><i data-lucide="trending-up"></i></div>
-                </div>
-                <div>
-                    <h4 id="statEfficiency" class="text-3xl font-black text-slate-900 leading-tight tracking-tight">0</h4>
-                    <p class="text-sm font-semibold text-slate-500 mt-1">Avg Effort Ratio</p>
-                    <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-50">
-                        <div class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></div>
-                        <p class="text-[11px] font-medium text-slate-400">Hours per volunteer</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <section class="mb-20 text-center max-w-3xl mx-auto leading-relaxed">
+            <p class="text-xl text-gray-600">
+                Data specialists from around the world joined forces with **Kheyti** to analyze ten years of greenhouse impact data. Together, we uncovered critical insights into farmer success, strategic growth paths, and the roadmap to empowering one million farmers by 2033.
+            </p>
+        </section>
 
         <!-- Charts Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                <h3 class="text-xl font-black text-slate-800 tracking-tight mb-2">Volunteer Effort Analysis</h3>
-                <p class="text-sm font-medium text-slate-400 mb-6">Comparison of volunteer count vs volunteer hours</p>
-                <div id="effortChart" class="min-h-[400px]"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <!-- Community -->
+            <div class="bg-white rounded-3xl shadow-xl p-8">
+                <h3 class="text-2xl font-bold text-[#073B4C] mb-6 text-center">Community Mix</h3>
+                <div class="chart-container"><canvas id="newVolunteersChart"></canvas></div>
+                <p class="text-center text-gray-500 mt-6 font-medium">74% of contributors are first-time DCM volunteers.</p>
             </div>
-
-            <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col">
-                <h3 class="text-xl font-black text-slate-800 mb-2">Focus Areas</h3>
-                <p class="text-sm font-medium text-slate-400 mb-6">Impact distribution</p>
-                <div id="distributionChart" class="flex-1"></div>
+            <!-- Expertise -->
+            <div class="bg-white rounded-3xl shadow-xl p-8">
+                <h3 class="text-2xl font-bold text-[#073B4C] mb-6 text-center">Expertise Level</h3>
+                <div class="chart-container"><canvas id="skillLevelChart"></canvas></div>
+                <p class="text-center text-gray-500 mt-6 font-medium">A highly skilled cohort with 63% Intermediate+ level.</p>
             </div>
-
-            <div class="lg:col-span-3 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                <h3 class="text-xl font-black text-slate-800 mb-2">Contribution Momentum</h3>
-                <p class="text-sm font-medium text-slate-400 mb-6">Cumulative volunteer hours growth</p>
-                <div id="timelineChart" class="min-h-[300px]"></div>
+            <!-- Tools -->
+            <div class="bg-white rounded-3xl shadow-xl p-8">
+                <h3 class="text-2xl font-bold text-[#073B4C] mb-6 text-center">Primary Tools</h3>
+                <div class="chart-container"><canvas id="toolsUsedChart"></canvas></div>
+                <p class="text-center text-gray-500 mt-6 font-medium">Tableau remains the preferred choice for visualization.</p>
+            </div>
+            <!-- Global Effort -->
+            <div class="bg-white rounded-3xl shadow-xl p-8">
+                <h3 class="text-2xl font-bold text-[#073B4C] mb-6 text-center">A Global Effort</h3>
+                <div class="chart-container"><canvas id="countriesChart"></canvas></div>
+                <p class="text-center text-gray-500 mt-6 font-medium">United States and Canada led the global contribution.</p>
             </div>
         </div>
 
-        <!-- Table Section -->
-        <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-            <div class="p-8 border-b border-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center">
-                        <i data-lucide="external-link" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-black text-slate-800">Project Registry</h3>
-                        <p class="text-xs font-semibold text-slate-400 mt-0.5">Comprehensive project audit logs</p>
-                    </div>
+        <!-- Carousel Section -->
+        <section class="mb-24">
+            <div class="text-center mb-10">
+                <h2 class="text-4xl font-black text-[#073B4C] mb-2">Volunteer Project Showcase</h2>
+                <p class="text-gray-500 text-lg">Click a visualization to explore the live submission.</p>
+            </div>
+            
+            <div class="relative carousel-container">
+                <div id="carousel-slide-container" class="flex carousel-slide"></div>
+                
+                <button id="prevBtn" class="btn-nav absolute top-1/2 left-6 transform -translate-y-1/2">
+                    <span class="text-2xl font-bold text-gray-800">&lsaquo;</span>
+                </button>
+                <button id="nextBtn" class="btn-nav absolute top-1/2 right-6 transform -translate-y-1/2">
+                    <span class="text-2xl font-bold text-gray-800">&rsaquo;</span>
+                </button>
+            </div>
+            
+            <div id="carousel-caption" class="text-center mt-8 p-10 bg-white rounded-3xl shadow-lg border border-gray-100">
+                <a id="carousel-link-name" href="#" target="_blank" class="text-3xl font-black text-[#118AB2] hover:underline block mb-2"></a>
+                <div class="flex justify-center items-center gap-4 text-gray-600 font-semibold text-lg">
+                    <span id="carousel-tool"></span>
+                    <span class="text-gray-300">•</span>
+                    <span id="carousel-loc"></span>
                 </div>
             </div>
+        </section>
+
+        <!-- Submissions Table -->
+        <section class="bg-white rounded-3xl shadow-xl overflow-hidden mb-16">
+            <div class="p-8 bg-[#073B4C]">
+                <h2 class="text-2xl font-bold text-white">Full Submission Directory</h2>
+            </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left">
+                <table class="min-w-full text-left">
                     <thead>
-                        <tr class="bg-slate-50/50 text-slate-400 text-[10px] uppercase font-black tracking-[0.15em] border-b border-slate-50">
-                            <th class="px-10 py-5">Charity Organization</th>
-                            <th class="px-10 py-5">Type</th>
-                            <th class="px-10 py-5 text-center">Engagement</th>
-                            <th class="px-10 py-5 text-right pr-12">Volunteer Hours</th>
+                        <tr class="bg-gray-50 border-b border-gray-100">
+                            <th class="px-8 py-4 text-sm font-black text-gray-400 uppercase tracking-widest">Volunteer</th>
+                            <th class="px-8 py-4 text-sm font-black text-gray-400 uppercase tracking-widest">Tool</th>
+                            <th class="px-8 py-4 text-sm font-black text-gray-400 uppercase tracking-widest">Submission</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody" class="divide-y divide-slate-50"></tbody>
+                    <tbody class="divide-y divide-gray-50" id="submissionsTableBody"></tbody>
                 </table>
             </div>
-        </div>
+        </section>
 
-        <footer class="text-center py-6">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-                &copy; 2024 Project Summary Analytics • Standalone Build
-            </p>
+        <footer class="text-center pt-12 border-t border-gray-200">
+            <p class="text-gray-400 font-medium tracking-wide uppercase text-sm">Created for the Kheyti & DataChangeMakers Project Collaboration</p>
+            <div class="mt-4 flex justify-center gap-6">
+                <a href="https://www.datachangemakers.org/" class="text-[#118AB2] hover:text-[#073B4C] font-bold">datachangemakers.org</a>
+                <a href="https://www.kheyti.com/" class="text-[#06D6A0] hover:text-[#073B4C] font-bold">kheyti.com</a>
+            </div>
         </footer>
     </div>
 
-    <!-- Export Status Message -->
-    <div id="exportStatus" class="fixed bottom-6 right-6 hidden bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl items-center gap-3 animate-bounce">
-        <i data-lucide="loader" class="animate-spin w-4 h-4"></i>
-        <span class="text-sm font-bold tracking-tight">Generating high-res PNG...</span>
-    </div>
-
     <script>
-        const DATA = [
-            { id: 0, date: '2025-08-14', charity: 'Noise Solution', type: 'Data visualisation', volunteers: 51, hours: 1034, totalHours: 1094 },
-            { id: 1, date: '2025-11-07', charity: 'Bhumi', type: 'Data visualisation', volunteers: 16, hours: 354, totalHours: 404 },
-            { id: 2, date: '2025-11-10', charity: 'No Kill Colorado', type: 'Data wrangling', volunteers: 13, hours: 260, totalHours: 340 },
-            { id: 3, date: '2025-10-02', charity: 'No Kill Colorado', type: 'Data visualisation', volunteers: 20, hours: 525, totalHours: 575 },
-            { id: 4, date: '2025-12-10', charity: 'Game Changers Institute', type: 'Data visualisation', volunteers: 11, hours: 462, totalHours: 512 },
-            { id: 6, date: '2025-10-01', charity: 'Video Volunteers', type: 'Health Check', volunteers: 1, hours: 40, totalHours: 43 },
-            { id: 7, date: '2026-03-01', charity: 'Kheyti', type: 'Data visualisation', volunteers: 19, hours: 392, totalHours: 412 },
+        const submissions = [
+            { first: 'Steph', last: 'Swierenga', skill: 'Advanced', country: 'Canada', city: 'Ottawa', hours: 30, tool: 'Python', link: 'https://ambitious-river-0bec9fd10.2.azurestaticapps.net', img: 'https://lh3.googleusercontent.com/d/1p8z3S8du4DtNVJPEh6P4_-XlMk_ua32u' },
+            { first: 'Hue', last: 'Vuong', skill: 'Intermediate', country: 'Ireland', city: 'Dublin', hours: 30, tool: 'Tableau', link: 'https://public.tableau.com/app/profile/hue.vuong1433/viz/KheytiDashboard/Greenhouse#1', img: 'https://lh3.googleusercontent.com/d/1bNW5T_NYxF58RnRXi74qLWz2mYXNJ9Jh' },
+            { first: 'Yehwan', last: 'Hwang', skill: 'Expert', country: 'South Korea', city: 'Seoul', hours: 6, tool: 'Tableau', link: 'https://www.vizney.com/miracle-in-a-box/', img: 'https://lh3.googleusercontent.com/d/1t6Hxo6TDj_8QBVNY4v3B9BaH-9XsWlRY' },
+            { first: 'Elena', last: 'Lebedeva', skill: 'Intermediate', country: 'Spain', city: 'Barcelona', hours: 16, tool: 'Looker Studio', link: 'https://lookerstudio.google.com/reporting/584dc1da-0ae5-4971-9660-d9d2443ab703', img: 'https://lh3.googleusercontent.com/d/1XRc3AHEZr3B6x_ziuTfRoVriHIYWXcBc' },
+            { first: 'Vlad', last: 'Cristian', skill: 'Intermediate', country: 'Romania', city: 'Bucharest', hours: 30, tool: 'Power BI', link: 'https://app.powerbi.com/view?r=eyJrIjoiNjZkNTZjN2YtYWJjMC00OTg5LWJmOTAtZWE0NmEzMzVhOGM2IiwidCI6ImM2ZTU0OWIzLTVmNDUtNDAzMi1hYWU5LWQ0MjQ0ZGM1YjJjNCJ9', img: 'https://lh3.googleusercontent.com/d/1ggggndr1cnGlic2uIM-y-XGjZ83dYzJc' },
+            { first: 'Halianna', last: 'Piller', skill: 'Intermediate', country: 'United States', city: 'Phoenix, AZ', hours: 10, tool: 'Power BI', link: 'https://github.com/hpiller22/kheyti_data_project', img: 'https://lh3.googleusercontent.com/d/1w0YjbF1eCfUnTctBVuDSBUV3zGJX1GFh' },
+            { first: 'Urmimala', last: 'Mandal', skill: 'Intermediate', country: 'United States', city: 'Tampa', hours: 20, tool: 'Tableau', link: 'https://public.tableau.com/app/profile/urmimala.mandal/viz/KheytiGreenhouseImpactandStrategicGrowthAnalysis2020-2025/Dashboard_FG?publish=yes', img: 'https://lh3.googleusercontent.com/d/1ap8no_hGr4wlH_H8uEKHyMaZ8tQTNnUF' },
+            { first: 'Amelia', last: 'Myers', skill: 'Intermediate', country: 'Canada', city: 'Toronto', hours: 25, tool: 'Looker Studio', link: 'https://lookerstudio.google.com/s/kTBKRmE8ly0', img: 'https://lh3.googleusercontent.com/d/1zCj6ak30BK_XguP0HZWTIUxGbHVgjBpy' },
+            { first: 'Dhanashree', last: 'Ashwin', skill: 'Beginner', country: 'Malaysia', city: 'Kuala Lumpur', hours: 75, tool: 'Tableau', link: 'https://public.tableau.com/views/Kheytis10-YearDashboard/Dashboard1', img: 'https://lh3.googleusercontent.com/d/1GxYbF26EEtgeVAChwTosMn-RLI1wwKpb' },
+            { first: 'Jessica', last: 'Bosch', skill: 'Advanced', country: 'Germany', city: 'Magdeburg', hours: 40, tool: 'Tableau', link: 'https://public.tableau.com/views/KheytiImpact/Intro', img: 'https://lh3.googleusercontent.com/d/1zQU2TMni5-xWvv6IkL1YqRKOmE_KGMGF' },
+            { first: 'Dennis', last: 'Kao', skill: 'Advanced', country: 'Canada', city: 'Ottawa', hours: 15, tool: 'Tableau', link: 'https://public.tableau.com/app/profile/dennis.kao/viz/Kheyti_17726199089830/Final', img: 'https://lh3.googleusercontent.com/d/1G_8yNI8RT4mXvfv1WWT8uPJeeOZM8R8V' },
+            { first: 'Emmanuella', last: 'Orjiako', skill: 'Intermediate', country: 'Nigeria', city: 'Port Harcourt', hours: 24, tool: 'Power BI', link: 'https://drive.google.com/file/d/1ieidEawaXgtKRnAMyPrN7_nRL8o6ZOaY/view', img: 'https://lh3.googleusercontent.com/d/1nkCOmWJbq2Nkth96IdpWt709VsHvyG-n' },
+            { first: 'Nina', last: 'Skoric', skill: 'Beginner', country: 'United States', city: 'Ruston', hours: 5, tool: 'Tableau', link: 'https://public.tableau.com/app/profile/nina.skoric/viz/DataChangeMakers_17725191771430/Dashboard1', img: 'https://lh3.googleusercontent.com/d/1YyZWg7-HnWgA6EMubDtf5ta4GnvVCodv' },
+            { first: 'Olivia', last: 'Howard', skill: 'Beginner', country: 'United States', city: 'Ruston', hours: 2, tool: 'Tableau', link: 'https://public.tableau.com/views/KheytiGreenhouseImpact-OliviaHoward/Dashboard1', img: 'https://lh3.googleusercontent.com/d/113v-uDYtQ-4atPphz55prxnbA2V_3b8V' },
+            { first: 'Brady', last: 'Beason', skill: 'Beginner', country: 'United States', city: 'Ruston', hours: 3, tool: 'Tableau', link: 'https://public.tableau.com/app/profile/brady.beason/viz/KheytiImpactStoryBoard-BradyBeason/Dashboard1', img: 'https://lh3.googleusercontent.com/d/1Yk_O0Z1ukP_dov6OeprsnHCNrc2tSh8n' },
+            { first: 'Shiyue', last: 'Ren', skill: 'Advanced', country: 'United States', city: 'Hoboken', hours: 15, tool: 'Power BI', link: 'https://app.powerbi.com/view?r=eyJrIjoiMjdlYTlhZTMtYzM0My00MWFmLWEyYjYtN2VkMTliMDgyZjVmIiwidCI6IjQ1ZDU0MDVhLWIwOTUtNDIwZS1hM2NhLWYzMzk1YWViMzY1NCIsImMiOjF9', img: 'https://lh3.googleusercontent.com/d/1p15q9FvU2_XFtLn4c4_hVHyhnAn0fAmd' },
+            { first: 'Angelina', last: 'Copeland', skill: 'Beginner', country: 'United States', city: 'Ruston', hours: 6, tool: 'Tableau', link: 'https://public.tableau.com/views/Copeland_KheytiWIP/CropStory', img: 'https://lh3.googleusercontent.com/d/1hCO2gcoE161f-cRpA3ic9V8JiGxATHK_' },
+            { first: 'Avery', last: 'Bryan', skill: 'Beginner', country: 'United States', city: 'Ruston', hours: 4, tool: 'Tableau', link: 'https://public.tableau.com/app/profile/avery.bryan4123/viz/Avery_Bryan_Winter25_Kheyti_Project/Dashboard1', img: 'https://lh3.googleusercontent.com/d/1e6lOA5XybIxzFIxJmUS-D4RBdY5rrcyP' },
+            { first: 'Gavin', last: 'Doucet', skill: 'Beginner', country: 'United States', city: 'Jennings', hours: 6, tool: 'Tableau', link: 'https://public.tableau.com/app/profile/gavin.doucet/viz/KheytiTableau/Dashboard1', img: 'https://lh3.googleusercontent.com/d/1Vv6kgzP3YmiIYapIdxpuCR3-0SFh47Pt' }
         ];
 
-        let effortChart, distributionChart, timelineChart;
+        document.addEventListener('DOMContentLoaded', () => {
+            const tableBody = document.getElementById('submissionsTableBody');
+            const slideContainer = document.getElementById('carousel-slide-container');
+            const capName = document.getElementById('carousel-link-name');
+            const capTool = document.getElementById('carousel-tool');
+            const capLoc = document.getElementById('carousel-loc');
 
-        function initDashboard() {
-            lucide.createIcons();
-            updateDashboard();
-            document.getElementById('searchInput').addEventListener('input', updateDashboard);
-            document.getElementById('typeFilter').addEventListener('change', updateDashboard);
-        }
-
-        function updateDashboard() {
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const filter = document.getElementById('typeFilter').value;
-            const filtered = DATA.filter(item => {
-                const matchesSearch = item.charity.toLowerCase().includes(search);
-                const matchesFilter = filter === 'All' || item.type === filter;
-                return matchesSearch && matchesFilter;
-            });
-            updateStats(filtered);
-            updateTable(filtered);
-            updateCharts(filtered);
-        }
-
-        function updateStats(data) {
-            const vols = data.reduce((sum, d) => sum + d.volunteers, 0);
-            const hrs = data.reduce((sum, d) => sum + d.totalHours, 0);
-            document.getElementById('statVolunteers').innerText = vols;
-            document.getElementById('statHours').innerText = hrs.toLocaleString();
-            
-            // Placeholder logic for "Countries" - using a distinct count or fixed value for demo
-            const uniqueCountries = data.length > 0 ? 5 : 0; // Simulated logic
-            document.getElementById('statProjects').innerText = uniqueCountries;
-            
-            document.getElementById('statEfficiency').innerText = vols > 0 ? (hrs / vols).toFixed(1) + 'h' : '0h';
-        }
-
-        function updateTable(data) {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = data.length > 0 ? data.map(row => `
-                <tr class="hover:bg-blue-50/30 transition-all duration-300">
-                    <td class="px-10 py-6">
-                        <div class="font-bold text-slate-800 text-base leading-tight">${row.charity}</div>
-                        <div class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">${row.date}</div>
+            submissions.forEach((s) => {
+                // Table
+                const row = document.createElement('tr');
+                row.className = "hover:bg-gray-50 transition-colors";
+                row.innerHTML = `
+                    <td class="px-8 py-5 font-bold text-[#073B4C]">${s.first} ${s.last}</td>
+                    <td class="px-8 py-5 text-gray-500 font-semibold">${s.tool}</td>
+                    <td class="px-8 py-5">
+                        <a href="${s.link}" target="_blank" class="bg-gray-100 text-[#118AB2] px-4 py-2 rounded-full text-sm font-bold hover:bg-[#118AB2] hover:text-white transition">Explore Project</a>
                     </td>
-                    <td class="px-10 py-6">
-                        <span class="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black bg-white border border-slate-200 text-slate-500 uppercase tracking-tighter">${row.type}</span>
-                    </td>
-                    <td class="px-10 py-6 text-center">
-                        <div class="flex flex-col items-center">
-                            <span class="text-sm font-black text-blue-600 leading-none">${row.volunteers}</span>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Volunteers</span>
-                        </div>
-                    </td>
-                    <td class="px-10 py-6 text-right pr-12">
-                        <div class="flex flex-col items-end">
-                            <span class="text-lg font-black text-slate-900 leading-none tracking-tight">${row.totalHours}</span>
-                            <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-1">Hours</span>
-                        </div>
-                    </td>
-                </tr>`).join('') : `<tr><td colSpan="4" class="p-20 text-center text-slate-400 font-bold uppercase tracking-widest">No matching results found</td></tr>`;
-        }
+                `;
+                tableBody.appendChild(row);
 
-        function updateCharts(data) {
-            if (effortChart) effortChart.destroy();
-            effortChart = new ApexCharts(document.querySelector("#effortChart"), {
-                series: [{ name: 'Volunteers', data: data.map(d => d.volunteers) }, { name: 'Volunteer Hours', data: data.map(d => d.totalHours) }],
-                chart: { type: 'bar', height: 400, toolbar: { show: false }, fontFamily: 'inherit' },
-                colors: ['#3b82f6', '#10b981'],
-                plotOptions: { bar: { borderRadius: 8, columnWidth: '50%' } },
-                dataLabels: { enabled: false },
-                xaxis: { categories: data.map(d => d.charity), axisBorder: { show: false }, axisTicks: { show: false } },
-                grid: { borderColor: '#f1f5f9' },
-                legend: { position: 'top' }
+                // Slide
+                const slide = document.createElement('div');
+                slide.className = 'w-full flex-shrink-0 carousel-image-container';
+                
+                const fallbackUrl = `https://placehold.co/800x500/118AB2/ffffff?text=${encodeURIComponent(s.first + ' ' + s.last)}%0A${encodeURIComponent(s.tool)}`;
+                
+                slide.innerHTML = `
+                    <a href="${s.link}" target="_blank" class="w-full h-full block">
+                        <img src="${s.img}" class="carousel-image" alt="${s.first}'s project" 
+                             onerror="this.src='${fallbackUrl}';">
+                    </a>`;
+                slideContainer.appendChild(slide);
             });
-            effortChart.render();
 
-            const types = {};
-            DATA.forEach(d => types[d.type] = (types[d.type] || 0) + 1);
-            if (distributionChart) distributionChart.destroy();
-            distributionChart = new ApexCharts(document.querySelector("#distributionChart"), {
-                series: Object.values(types),
-                labels: Object.keys(types),
-                chart: { type: 'donut', height: 350, fontFamily: 'inherit' },
-                colors: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
-                stroke: { show: false },
-                plotOptions: { pie: { donut: { size: '75%', labels: { show: true, total: { show: true, label: 'TOTAL' } } } } }
-            });
-            distributionChart.render();
-
-            const sorted = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
-            if (timelineChart) timelineChart.destroy();
-            timelineChart = new ApexCharts(document.querySelector("#timelineChart"), {
-                series: [{ name: 'Volunteer Hours', data: sorted.map(d => d.totalHours) }],
-                chart: { type: 'area', height: 300, toolbar: { show: false }, fontFamily: 'inherit' },
-                stroke: { curve: 'smooth', width: 4, colors: ['#3b82f6'] },
-                fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0 } },
-                xaxis: { categories: sorted.map(d => d.date), axisBorder: { show: false }, axisTicks: { show: false } }
-            });
-            timelineChart.render();
-        }
-
-        // Export Functionality
-        async function exportDashboard() {
-            const status = document.getElementById('exportStatus');
-            status.classList.remove('hidden');
-            status.classList.add('flex');
-
-            try {
-                const element = document.getElementById('dashboardContainer');
-                const canvas = await html2canvas(element, {
-                    scale: 2, 
-                    useCORS: true,
-                    backgroundColor: '#f1f5f9',
-                    logging: false
-                });
-
-                const link = document.createElement('a');
-                link.download = `project-summary-${new Date().toISOString().slice(0,10)}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            } catch (err) {
-                console.error("Export failed", err);
-            } finally {
-                status.classList.add('hidden');
-                status.classList.remove('flex');
+            // Navigation
+            let currentIndex = 0;
+            function updateCarousel() {
+                slideContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+                const s = submissions[currentIndex];
+                capName.textContent = `${s.first} ${s.last}`;
+                capName.href = s.link;
+                capTool.textContent = s.tool;
+                capLoc.textContent = s.country;
             }
-        }
 
-        window.onload = initDashboard;
+            document.getElementById('nextBtn').onclick = () => { currentIndex = (currentIndex + 1) % submissions.length; updateCarousel(); };
+            document.getElementById('prevBtn').onclick = () => { currentIndex = (currentIndex - 1 + submissions.length) % submissions.length; updateCarousel(); };
+            updateCarousel();
+
+            // Charts
+            const palette = { blue: '#118AB2', green: '#06D6A0', yellow: '#FFD166', red: '#FF6B6B', dark: '#073B4C' };
+
+            const initChart = (id, config) => {
+                const el = document.getElementById(id);
+                if (el) return new Chart(el, config);
+            };
+
+            initChart('newVolunteersChart', {
+                type: 'doughnut',
+                data: { labels: ['New', 'Returning'], datasets: [{ data: [14, 5], backgroundColor: [palette.green, palette.yellow], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            initChart('skillLevelChart', {
+                type: 'bar',
+                data: { 
+                    labels: ['Beginner', 'Intermediate', 'Advanced', 'Expert'], 
+                    datasets: [{ label: 'Submissions', data: [7, 7, 4, 1], backgroundColor: [palette.red, palette.yellow, palette.blue, palette.dark] }] 
+                },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+
+            initChart('toolsUsedChart', {
+                type: 'bar',
+                data: { labels: ['Tableau', 'Power BI', 'Looker', 'Python'], datasets: [{ label: 'Usage', data: [12, 4, 2, 1], backgroundColor: palette.blue }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+
+            initChart('countriesChart', {
+                type: 'bar',
+                data: { 
+                    labels: ['USA', 'Canada', 'Nigeria', 'Germany', 'Ireland', 'Malaysia', 'Romania', 'South Korea', 'Spain'], 
+                    datasets: [{ label: 'Volunteers', data: [9, 3, 1, 1, 1, 1, 1, 1, 1], backgroundColor: palette.blue }] 
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+        });
     </script>
 </body>
 </html>
