@@ -155,8 +155,6 @@
             <th>Volunteers</th>
             <th>Total hours</th>
             <th>Students</th>
-            <th>Satisfaction</th>
-            <th>Recommend</th>
           </tr>
         </thead>
         <tbody id="proj-tbody"></tbody>
@@ -470,8 +468,6 @@ function renderDashboard(rows1, rows2) {
       <td>${o.vols||'—'}</td>
       <td>${Math.round(o.hours).toLocaleString()}</td>
       <td>${o.students||'—'}</td>
-      <td><span class="stars">${satStr}</span></td>
-      <td>${recAvg?recAvg.toFixed(1)+'/5':'<span style="color:#d3d1c7">—</span>'}</td>
     </tr>`;
   }).join('');
 
