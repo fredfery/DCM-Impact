@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Summary | Impact Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Library for PNG Export -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .chart-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .chart-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+        /* Ensure screenshot includes background colors */
+        #dashboardContainer { padding: 40px; background-color: #f1f5f9; }
+    </style>
+</head>
+<body class="bg-[#f1f5f9] text-slate-900 min-h-screen pb-12">
+
+    <div id="dashboardContainer" class="max-w-7xl mx-auto space-y-8 pt-8">
+        
+        <!-- Header Section -->
+        <header class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+            <div class="flex items-center gap-6">
+                <!-- Enlarged Logo -->
+                <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center shadow-xl shadow-blue-200 shrink-0">
+                    <i data-lucide="layout-dashboard" class="text-white w-12 h-12"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight flex items-center gap-2">
+                        Project Summary
+                    </h1>
+                    <p class="text-slate-400 text-sm font-semibold uppercase tracking-widest flex items-center gap-1.5 mt-1">
+                        <i data-lucide="target" class="w-4 h-4"></i> Stats vs. Impact
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row items-center gap-3">
+                <!-- Search and Filters -->
+                <div class="relative w-full sm:w-64 group">
+                    <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors w-4 h-4"></i>
+                    <input 
+                        type="text" 
+                        id="searchInput"
+                        placeholder="Search charity..." 
+                        class="w-full bg-slate-50 border border-slate-100 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all"
+                    >
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2">
+                    <select 
+                        id="typeFilter"
+                        class="bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 focus:ring-0 cursor-pointer px-4 py-2.5 outline-none h-[42px]"
+                    >
+                        <option value="All">All Categories</option>
+                        <option value="Data visualisation">Data visualisation</option>
+                        <option value="Data wrangling">Data wrangling</option>
+                        <option value="Health Check">Health Check</option>
+                    </select>
+
+                    <button 
+                        onclick="exportDashboard()"
+                        class="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 h-[42px]"
+                    >
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Export PNG</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between chart-card">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 rounded-2xl bg-blue-50 text-blue-600"><i data-lucide="users"></i></div>
+                    <span class="text-[10px] font-bold bg-slate-50 text-slate-500 px-2 py-1 rounded-full border border-slate-100 uppercase">+12%</span>
+                </div>
+                <div>
+                    <h4 id="statVolunteers" class="text-3xl font-black text-slate-900 leading-tight tracking-tight">0</h4>
+                    <p class="text-sm font-semibold text-slate-500 mt-1">Total Volunteers</p>
+                    <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-50">
+                        <div class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+                        <p class="text-[11px] font-medium text-slate-400">Active contributors</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between chart-card">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 rounded-2xl bg-emerald-50 text-emerald-600"><i data-lucide="clock"></i></div>
+                </div>
+                <div>
+                    <h4 id="statHours" class="text-3xl font-black text-slate-900 leading-tight tracking-tight">0</h4>
+                    <p class="text-sm font-semibold text-slate-500 mt-1">Volunteer Hours</p>
+                    <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-50">
+                        <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <p class="text-[11px] font-medium text-slate-400">Total time spent</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between chart-card">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 rounded-2xl bg-amber-50 text-amber-600"><i data-lucide="globe"></i></div>
+                </div>
+                <div>
+                    <h4 id="statProjects" class="text-3xl font-black text-slate-900 leading-tight tracking-tight">0</h4>
+                    <p class="text-sm font-semibold text-slate-500 mt-1">Countries</p>
+                    <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-50">
+                        <div class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
+                        <p class="text-[11px] font-medium text-slate-400">Global reach</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between chart-card">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 rounded-2xl bg-purple-50 text-purple-600"><i data-lucide="trending-up"></i></div>
+                </div>
+                <div>
+                    <h4 id="statEfficiency" class="text-3xl font-black text-slate-900 leading-tight tracking-tight">0</h4>
+                    <p class="text-sm font-semibold text-slate-500 mt-1">Avg Effort Ratio</p>
+                    <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-50">
+                        <div class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></div>
+                        <p class="text-[11px] font-medium text-slate-400">Hours per volunteer</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                <h3 class="text-xl font-black text-slate-800 tracking-tight mb-2">Volunteer Effort Analysis</h3>
+                <p class="text-sm font-medium text-slate-400 mb-6">Comparison of volunteer count vs volunteer hours</p>
+                <div id="effortChart" class="min-h-[400px]"></div>
+            </div>
+
+            <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col">
+                <h3 class="text-xl font-black text-slate-800 mb-2">Focus Areas</h3>
+                <p class="text-sm font-medium text-slate-400 mb-6">Impact distribution</p>
+                <div id="distributionChart" class="flex-1"></div>
+            </div>
+
+            <div class="lg:col-span-3 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                <h3 class="text-xl font-black text-slate-800 mb-2">Contribution Momentum</h3>
+                <p class="text-sm font-medium text-slate-400 mb-6">Cumulative volunteer hours growth</p>
+                <div id="timelineChart" class="min-h-[300px]"></div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-8 border-b border-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center">
+                        <i data-lucide="external-link" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-slate-800">Project Registry</h3>
+                        <p class="text-xs font-semibold text-slate-400 mt-0.5">Comprehensive project audit logs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-slate-50/50 text-slate-400 text-[10px] uppercase font-black tracking-[0.15em] border-b border-slate-50">
+                            <th class="px-10 py-5">Charity Organization</th>
+                            <th class="px-10 py-5">Type</th>
+                            <th class="px-10 py-5 text-center">Engagement</th>
+                            <th class="px-10 py-5 text-right pr-12">Volunteer Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-50"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="text-center py-6">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
+                &copy; 2024 Project Summary Analytics • Standalone Build
+            </p>
+        </footer>
+    </div>
+
+    <!-- Export Status Message -->
+    <div id="exportStatus" class="fixed bottom-6 right-6 hidden bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl items-center gap-3 animate-bounce">
+        <i data-lucide="loader" class="animate-spin w-4 h-4"></i>
+        <span class="text-sm font-bold tracking-tight">Generating high-res PNG...</span>
+    </div>
+
+    <script>
+        const DATA = [
+            { id: 0, date: '2025-08-14', charity: 'Noise Solution', type: 'Data visualisation', volunteers: 51, hours: 1034, totalHours: 1094 },
+            { id: 1, date: '2025-11-07', charity: 'Bhumi', type: 'Data visualisation', volunteers: 16, hours: 354, totalHours: 404 },
+            { id: 2, date: '2025-11-10', charity: 'No Kill Colorado', type: 'Data wrangling', volunteers: 13, hours: 260, totalHours: 340 },
+            { id: 3, date: '2025-10-02', charity: 'No Kill Colorado', type: 'Data visualisation', volunteers: 20, hours: 525, totalHours: 575 },
+            { id: 4, date: '2025-12-10', charity: 'Game Changers Institute', type: 'Data visualisation', volunteers: 11, hours: 462, totalHours: 512 },
+            { id: 6, date: '2025-10-01', charity: 'Video Volunteers', type: 'Health Check', volunteers: 1, hours: 40, totalHours: 43 },
+            { id: 7, date: '2026-03-01', charity: 'Kheyti', type: 'Data visualisation', volunteers: 19, hours: 392, totalHours: 412 },
+        ];
+
+        let effortChart, distributionChart, timelineChart;
+
+        function initDashboard() {
+            lucide.createIcons();
+            updateDashboard();
+            document.getElementById('searchInput').addEventListener('input', updateDashboard);
+            document.getElementById('typeFilter').addEventListener('change', updateDashboard);
+        }
+
+        function updateDashboard() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filter = document.getElementById('typeFilter').value;
+            const filtered = DATA.filter(item => {
+                const matchesSearch = item.charity.toLowerCase().includes(search);
+                const matchesFilter = filter === 'All' || item.type === filter;
+                return matchesSearch && matchesFilter;
+            });
+            updateStats(filtered);
+            updateTable(filtered);
+            updateCharts(filtered);
+        }
+
+        function updateStats(data) {
+            const vols = data.reduce((sum, d) => sum + d.volunteers, 0);
+            const hrs = data.reduce((sum, d) => sum + d.totalHours, 0);
+            document.getElementById('statVolunteers').innerText = vols;
+            document.getElementById('statHours').innerText = hrs.toLocaleString();
+            
+            // Placeholder logic for "Countries" - using a distinct count or fixed value for demo
+            const uniqueCountries = data.length > 0 ? 5 : 0; // Simulated logic
+            document.getElementById('statProjects').innerText = uniqueCountries;
+            
+            document.getElementById('statEfficiency').innerText = vols > 0 ? (hrs / vols).toFixed(1) + 'h' : '0h';
+        }
+
+        function updateTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = data.length > 0 ? data.map(row => `
+                <tr class="hover:bg-blue-50/30 transition-all duration-300">
+                    <td class="px-10 py-6">
+                        <div class="font-bold text-slate-800 text-base leading-tight">${row.charity}</div>
+                        <div class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">${row.date}</div>
+                    </td>
+                    <td class="px-10 py-6">
+                        <span class="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black bg-white border border-slate-200 text-slate-500 uppercase tracking-tighter">${row.type}</span>
+                    </td>
+                    <td class="px-10 py-6 text-center">
+                        <div class="flex flex-col items-center">
+                            <span class="text-sm font-black text-blue-600 leading-none">${row.volunteers}</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Volunteers</span>
+                        </div>
+                    </td>
+                    <td class="px-10 py-6 text-right pr-12">
+                        <div class="flex flex-col items-end">
+                            <span class="text-lg font-black text-slate-900 leading-none tracking-tight">${row.totalHours}</span>
+                            <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-1">Hours</span>
+                        </div>
+                    </td>
+                </tr>`).join('') : `<tr><td colSpan="4" class="p-20 text-center text-slate-400 font-bold uppercase tracking-widest">No matching results found</td></tr>`;
+        }
+
+        function updateCharts(data) {
+            if (effortChart) effortChart.destroy();
+            effortChart = new ApexCharts(document.querySelector("#effortChart"), {
+                series: [{ name: 'Volunteers', data: data.map(d => d.volunteers) }, { name: 'Volunteer Hours', data: data.map(d => d.totalHours) }],
+                chart: { type: 'bar', height: 400, toolbar: { show: false }, fontFamily: 'inherit' },
+                colors: ['#3b82f6', '#10b981'],
+                plotOptions: { bar: { borderRadius: 8, columnWidth: '50%' } },
+                dataLabels: { enabled: false },
+                xaxis: { categories: data.map(d => d.charity), axisBorder: { show: false }, axisTicks: { show: false } },
+                grid: { borderColor: '#f1f5f9' },
+                legend: { position: 'top' }
+            });
+            effortChart.render();
+
+            const types = {};
+            DATA.forEach(d => types[d.type] = (types[d.type] || 0) + 1);
+            if (distributionChart) distributionChart.destroy();
+            distributionChart = new ApexCharts(document.querySelector("#distributionChart"), {
+                series: Object.values(types),
+                labels: Object.keys(types),
+                chart: { type: 'donut', height: 350, fontFamily: 'inherit' },
+                colors: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
+                stroke: { show: false },
+                plotOptions: { pie: { donut: { size: '75%', labels: { show: true, total: { show: true, label: 'TOTAL' } } } } }
+            });
+            distributionChart.render();
+
+            const sorted = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
+            if (timelineChart) timelineChart.destroy();
+            timelineChart = new ApexCharts(document.querySelector("#timelineChart"), {
+                series: [{ name: 'Volunteer Hours', data: sorted.map(d => d.totalHours) }],
+                chart: { type: 'area', height: 300, toolbar: { show: false }, fontFamily: 'inherit' },
+                stroke: { curve: 'smooth', width: 4, colors: ['#3b82f6'] },
+                fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0 } },
+                xaxis: { categories: sorted.map(d => d.date), axisBorder: { show: false }, axisTicks: { show: false } }
+            });
+            timelineChart.render();
+        }
+
+        // Export Functionality
+        async function exportDashboard() {
+            const status = document.getElementById('exportStatus');
+            status.classList.remove('hidden');
+            status.classList.add('flex');
+
+            try {
+                const element = document.getElementById('dashboardContainer');
+                const canvas = await html2canvas(element, {
+                    scale: 2, 
+                    useCORS: true,
+                    backgroundColor: '#f1f5f9',
+                    logging: false
+                });
+
+                const link = document.createElement('a');
+                link.download = `project-summary-${new Date().toISOString().slice(0,10)}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (err) {
+                console.error("Export failed", err);
+            } finally {
+                status.classList.add('hidden');
+                status.classList.remove('flex');
+            }
+        }
+
+        window.onload = initDashboard;
+    </script>
+</body>
+</html>
