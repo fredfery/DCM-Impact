@@ -260,11 +260,11 @@ function sheetURL(id, tab) {
   return `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(tab)}?key=${API_KEY}`;
 }
 
-async function fetchSheet(id, tab) {
+async function fetchSheet(id, tab, skipRows = 1) {
   const res = await fetch(sheetURL(id, tab));
   if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Fetch failed'); }
   const json = await res.json();
-  return (json.values || []).slice(1).filter(r => r.length > 1);
+  return (json.values || []).slice(skipRows).filter(r => r.length > 1);
 }
 
 async function loadAll() {
@@ -278,8 +278,8 @@ async function loadAll() {
 
   try {
     const [rows1, rows2] = await Promise.all([
-      fetchSheet(SHEET1_ID, SHEET1_TAB),
-      fetchSheet(SHEET2_ID, SHEET2_TAB),
+      fetchSheet(SHEET1_ID, SHEET1_TAB, 2),
+      fetchSheet(SHEET2_ID, SHEET2_TAB, 1),
     ]);
     renderDashboard(rows1, rows2);
     dot.classList.add('live');
