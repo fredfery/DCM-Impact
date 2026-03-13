@@ -254,7 +254,7 @@ let charts = {};
 let surveyData = {};
 
 function v(row, col) { const val = row[col-1]; return val !== undefined ? String(val).trim() : ''; }
-function n(row, col) { const val = parseFloat(v(row, col)); return isNaN(val) ? null : val; }
+function n(row, col) { const val = parseFloat(v(row, col).replace(/[$,]/g, "")); return isNaN(val) ? null : val; }
 
 function sheetURL(id, tab) {
   return `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(tab)}?key=${API_KEY}`;
@@ -264,7 +264,7 @@ async function fetchSheet(id, tab, skipRows = 1) {
   const res = await fetch(sheetURL(id, tab));
   if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Fetch failed'); }
   const json = await res.json();
-  return (json.values || []).slice(skipRows).filter(r => r.length > 1);
+  return (json.values || []).slice(skipRows).filter(r => r.some(c => String(c).trim() !== ""));
 }
 
 async function loadAll() {
@@ -278,7 +278,7 @@ async function loadAll() {
 
   try {
     const [rows1, rows2] = await Promise.all([
-      fetchSheet(SHEET1_ID, SHEET1_TAB, 3),
+      fetchSheet(SHEET1_ID, SHEET1_TAB, 1),
       fetchSheet(SHEET2_ID, SHEET2_TAB, 1),
     ]);
     renderDashboard(rows1, rows2);
@@ -355,7 +355,7 @@ function getTypeInfo(types) {
 
 // ── Main render ───────────────────────────────────────────────────────────────
 function renderDashboard(rows1, rows2) {
-  const orgs = mergeOrgs(rows1.filter(r => v(r, COL.CHARITY)));
+  const orgs = mergeOrgs(rows1.filter(r => v(r, COL.CHARITY).length > 1));
 
   // Subtitle
   const uniqueOrgCount = new Set(orgs.map(o => o.name.replace(/\s*\(.*?\)/g,'').trim().toLowerCase())).size;
