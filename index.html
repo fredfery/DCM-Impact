@@ -278,7 +278,7 @@ async function loadAll() {
 
   try {
     const [rows1, rows2] = await Promise.all([
-      fetchSheet(SHEET1_ID, SHEET1_TAB, 2),
+      fetchSheet(SHEET1_ID, SHEET1_TAB, 3),
       fetchSheet(SHEET2_ID, SHEET2_TAB, 1),
     ]);
     renderDashboard(rows1, rows2);
@@ -318,29 +318,28 @@ function destroyChart(id) {
 }
 
 function mergeOrgs(rows) {
-  const map = {};
-  rows.forEach(row => {
-    const raw = v(row, COL.CHARITY);
-    const normalised = raw.replace(/\s*\(.*?\)/g,'').trim().replace(/[Cc]ollorado/g,'Colorado');
-    const key = normalised.toLowerCase();
-    const name = normalised;
-    if (!map[key]) map[key] = { name, types:new Set(), vols:0, hours:0, vizHours:0, students:0, sat:[], recommend:[], quotes:[], surveyRows:[] };
-    const o = map[key];
+  // Each project row becomes its own entry; No Kill Colorado kept as separate rows
+  return rows.map(row => {
+    const raw = v(row, COL.CHARITY).replace(/[Cc]ollorado/g, 'Colorado').trim();
     const type = v(row, COL.TYPE).toLowerCase();
-    o.types.add(type);
-    o.vols += n(row, COL.VOLS_PROJECT) || 0;
     const rowHours = n(row, COL.GRAND_TOTAL) || n(row, COL.HOURS_PROJECT) || 0;
-    o.hours += rowHours;
-    o.students += n(row, COL.STUDENTS) || 0;
-    if (type.includes('visuali')) o.vizHours += rowHours;
     const sat = n(row, COL.OVERALL_SAT);
-    if (sat) o.sat.push(sat);
     const rec = n(row, COL.LIKELY_RECOMMEND);
-    if (rec) o.recommend.push(rec);
-    const q = v(row, COL.QUOTES); if (q) o.quotes.push({ text: q, org: name });
-    o.surveyRows.push(row);
-  });
-  return Object.values(map);
+    const q = v(row, COL.QUOTES);
+    const isViz = type.includes('visuali');
+    return {
+      name: raw,
+      types: new Set([type]),
+      vols: n(row, COL.VOLS_PROJECT) || 0,
+      hours: rowHours,
+      vizHours: isViz ? rowHours : 0,
+      students: n(row, COL.STUDENTS) || 0,
+      sat: sat ? [sat] : [],
+      recommend: rec ? [rec] : [],
+      quotes: q ? [{ text: q, org: raw }] : [],
+      surveyRows: [row],
+    };
+  }).filter(o => o.name);
 }
 
 function getTypeInfo(types) {
@@ -359,8 +358,9 @@ function renderDashboard(rows1, rows2) {
   const orgs = mergeOrgs(rows1.filter(r => v(r, COL.CHARITY)));
 
   // Subtitle
+  const uniqueOrgCount = new Set(orgs.map(o => o.name.replace(/\s*\(.*?\)/g,'').trim().toLowerCase())).size;
   document.getElementById('subtitle').textContent =
-    `Impact dashboard — ${orgs.length} organisations · ${rows1.length} projects · ${rows2.length} volunteer submissions`;
+    `Impact dashboard — ${uniqueOrgCount} organisations · ${orgs.length} projects · ${rows2.length} volunteer submissions`;
 
   // ── Key metrics ──────────────────────────────────────────────────────────
   const totalHours = orgs.reduce((s,o)=>s+o.hours,0);
@@ -383,7 +383,7 @@ function renderDashboard(rows1, rows2) {
     </div>
     <div class="metric">
       <div class="metric-label">Nonprofits served</div>
-      <div class="metric-value">${orgs.length}</div>
+      <div class="metric-value">${uniqueOrgCount}</div>
       <div class="metric-sub">unique organisations</div>
     </div>
     <div class="metric">
