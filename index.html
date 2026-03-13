@@ -10,7 +10,6 @@
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f8f6; color: #1a1a18; min-height: 100vh; padding: 2rem 1rem; }
   .page { max-width: 960px; margin: 0 auto; }
 
-  /* Header */
   .header { margin-bottom: 2rem; padding-bottom: 1.25rem; border-bottom: 0.5px solid #e0deda; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px; }
   .header h1 { font-size: 24px; font-weight: 500; color: #1a1a18; }
   .header p { font-size: 13px; color: #888780; margin-top: 4px; }
@@ -19,13 +18,11 @@
   .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #b4b2a9; display: inline-block; }
   .status-dot.live { background: #1d9e75; }
 
-  /* Loading & error */
   .loading { text-align: center; padding: 4rem 2rem; color: #888780; font-size: 14px; }
   .loading-spinner { width: 28px; height: 28px; border: 2px solid #e0deda; border-top-color: #1d9e75; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .error-box { background: #faece7; border-radius: 8px; padding: 16px 20px; color: #993c1d; font-size: 13px; line-height: 1.6; margin-bottom: 1.5rem; }
 
-  /* Sections */
   .section-label { font-size: 11px; letter-spacing: 0.08em; color: #b4b2a9; text-transform: uppercase; margin-bottom: 12px; font-weight: 500; }
   .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
   .metric { background: #f1efe8; border-radius: 8px; padding: 14px 16px; }
@@ -35,13 +32,11 @@
   .metric-accent { background: #e1f5ee; }
   .metric-accent .metric-value { color: #0f6e56; }
 
-  /* Charts */
   .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
   .chart-card { background: #fff; border: 0.5px solid #e0deda; border-radius: 12px; padding: 1rem 1.25rem; }
   .chart-title { font-size: 13px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
   .chart-sub { font-size: 11px; color: #b4b2a9; margin-bottom: 14px; }
 
-  /* Survey tabs */
   .tabs { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
   .tab { font-size: 12px; padding: 5px 12px; border-radius: 8px; border: 0.5px solid #d3d1c7; background: transparent; cursor: pointer; color: #888780; font-family: inherit; }
   .tab.active { background: #f1efe8; color: #1a1a18; border-color: #b4b2a9; font-weight: 500; }
@@ -53,14 +48,12 @@
   .bar-fill { height: 8px; border-radius: 3px; transition: width 0.6s ease; }
   .bar-val { font-size: 11px; color: #b4b2a9; width: 28px; text-align: right; }
 
-  /* Quotes */
   .quotes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
   .quote-card { background: #fff; border: 0.5px solid #e0deda; border-radius: 12px; padding: 1rem 1.25rem; }
   .quote-mark { font-size: 28px; line-height: 1; color: #1d9e75; font-weight: 500; margin-bottom: 4px; }
   .quote-text { font-size: 12px; color: #2c2c2a; line-height: 1.6; font-style: italic; margin-bottom: 10px; }
   .quote-org { font-size: 11px; color: #b4b2a9; font-weight: 500; }
 
-  /* Table */
   .table-wrap { background: #fff; border: 0.5px solid #e0deda; border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem; overflow-x: auto; }
   .projects-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 560px; }
   .projects-table th { text-align: left; font-weight: 500; color: #888780; padding: 8px 12px; border-bottom: 0.5px solid #e0deda; font-size: 11px; background: #faf9f7; white-space: nowrap; }
@@ -71,9 +64,18 @@
   .badge-multi { background: #eeedfe; color: #534ab7; }
   .badge-edu { background: #faeeda; color: #854f0b; }
   .badge-health { background: #faece7; color: #993c1d; }
+  .badge-beginner { background: #e6f1fb; color: #185fa5; }
+  .badge-intermediate { background: #eeedfe; color: #534ab7; }
+  .badge-advanced { background: #e1f5ee; color: #0f6e56; }
   .stars { color: #ef9f27; font-size: 12px; }
 
-  /* Insights */
+  /* Volunteer section */
+  .vol-charts-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+  .vol-stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .pill-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .pill { font-size: 11px; padding: 3px 10px; border-radius: 99px; background: #f1efe8; color: #5f5e5a; border: 0.5px solid #e0deda; }
+  .pill-highlight { background: #e1f5ee; color: #0f6e56; border-color: #9fe1cb; }
+
   .insight-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
   .insight-card { background: #fff; border: 0.5px solid #e0deda; border-radius: 12px; padding: 1rem 1.25rem; }
   .insight-num { font-size: 32px; font-weight: 500; color: #0f6e56; line-height: 1; }
@@ -83,8 +85,9 @@
 
   .footer { font-size: 11px; color: #b4b2a9; text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 0.5px solid #e0deda; }
 
-  @media (max-width: 620px) {
+  @media (max-width: 700px) {
     .charts-row { grid-template-columns: 1fr; }
+    .vol-charts-row { grid-template-columns: 1fr; }
     .quotes-grid { grid-template-columns: 1fr; }
     .insight-row { grid-template-columns: 1fr 1fr; }
     .header { flex-direction: column; align-items: flex-start; }
@@ -99,7 +102,7 @@
       <h1>Data ChangeMakers</h1>
       <p id="subtitle">Impact dashboard — loading...</p>
     </div>
-    <button class="refresh-btn" onclick="loadData()">
+    <button class="refresh-btn" onclick="loadAll()">
       <span class="status-dot" id="status-dot"></span>
       <span id="refresh-label">Refresh data</span>
     </button>
@@ -157,110 +160,161 @@
       </table>
     </div>
 
+    <!-- VOLUNTEER SECTION -->
+    <div class="section-label">Our volunteers</div>
+    <div class="vol-stat-row" id="vol-stat-row"></div>
+
+    <div class="vol-charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Data skill level</div>
+        <div class="chart-sub">self-reported by volunteers</div>
+        <div style="position: relative; width: 100%; height: 200px;">
+          <canvas id="skillChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Tools used</div>
+        <div class="chart-sub">across all submissions</div>
+        <div style="position: relative; width: 100%; height: 200px;">
+          <canvas id="toolChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Top countries</div>
+        <div class="chart-sub">volunteer locations</div>
+        <div style="position: relative; width: 100%; height: 200px;">
+          <canvas id="countryChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Top cities</div>
+        <div class="chart-sub">where our volunteers are based</div>
+        <div id="cities-list" style="margin-top: 4px;"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">First-time participants</div>
+        <div class="chart-sub">new vs returning volunteers</div>
+        <div style="position: relative; width: 100%; height: 180px;">
+          <canvas id="firstTimeChart"></canvas>
+        </div>
+      </div>
+    </div>
+
     <div class="section-label">Insights</div>
     <div class="insight-row" id="insight-row"></div>
     <div class="callout">
       <div class="callout-text" id="callout-text"></div>
     </div>
 
-    <div class="footer">Data ChangeMakers · Impact Report · Live data from Google Sheets · Last updated: <span id="last-updated">—</span></div>
+    <div class="footer">Data ChangeMakers · Impact Report · Live from Google Sheets · Last updated: <span id="last-updated">—</span></div>
   </div>
 
 </div>
 
 <script>
-// ─── CONFIG — update these if your sheet changes ───────────────────────────
-const API_KEY   = 'AIzaSyAtOXeiYk4A9KwEnj4LY3VB_ypJ8O69DlQ';
-const SHEET_ID  = '1bDquzEfAkV959pBQXG1zofloY5ZTEFQZaSfJSdS7StA';
-const TAB_NAME  = 'Project Impact';
-// ───────────────────────────────────────────────────────────────────────────
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const API_KEY      = 'AIzaSyAtOXeiYk4A9KwEnj4LY3VB_ypJ8O69DlQ';
+const SHEET1_ID    = '1bDquzEfAkV959pBQXG1zofloY5ZTEFQZaSfJSdS7StA';
+const SHEET1_TAB   = 'Project Impact';
+const SHEET2_ID    = '14jOgDE-a7-I7Rns9zERGTcA2ounblIdli2b5v-sWYSg';
+const SHEET2_TAB   = 'All Submissions';
+// ─────────────────────────────────────────────────────────────────────────────
 
-let hoursChartInstance = null;
-
+// Sheet 1 column indices (1-based)
 const COL = {
-  DATE: 1, CHARITY: 2, TYPE: 3, VOLS_PROJECT: 4, HOURS_PROJECT: 5,
-  HOURS_SUPPORT: 6, VOLS_POST: 8, HOURS_POST: 9, STUDENTS: 12,
-  HOURS_INDIRECT: 13, GRAND_TOTAL: 14,
-  PRE_DATA: 15, POST_DATA: 16, PRE_LITERACY: 17, POST_LITERACY: 18,
-  PRE_TOOLS: 19, POST_SUPPORT: 20, PRE_IMPACT: 21, POST_IMPACT: 22,
-  PRE_DECISIONS: 23, POST_DECISIONS: 24,
-  Q_OPPORTUNITIES: 25, Q_EXAMPLE: 26,
-  SATISFACTION: 27, RECOMMEND: 28, Q_VALUABLE: 29,
-  DASHBOARDS_IMPROVED: 30, BETTER_MEASURE: 31, Q_COMMUNITY: 32,
-  OVERALL_SAT: 33, LIKELY_RECOMMEND: 34, QUOTES: 35
+  PROJECT_ID:1, DATE:2, CHARITY:3, TYPE:4, VOLS_PROJECT:5, HOURS_PROJECT:6,
+  HOURS_SUPPORT:7, STUDENTS:12, GRAND_TOTAL:14,
+  PRE_DATA:15, POST_DATA:16, PRE_LITERACY:17, POST_LITERACY:18,
+  PRE_IMPACT:21, POST_IMPACT:22, PRE_DECISIONS:23, POST_DECISIONS:24,
+  OVERALL_SAT:33, LIKELY_RECOMMEND:34, QUOTES:35,
 };
 
-function v(row, col) {
-  const val = row[col - 1];
-  return val !== undefined ? String(val).trim() : '';
-}
-function n(row, col) {
-  const val = parseFloat(v(row, col));
-  return isNaN(val) ? null : val;
+// Sheet 2 column indices (1-based) — based on headers provided
+// Submission ID, Project ID, Date, Charity Name, First name, Last name, Email,
+// Project Type, Data skill level?, Country, City, Hours spent,
+// First time entering?, Tool used?, Link, Screenshot, Charity Country, Topic, Selected to Present
+const VOL = {
+  CHARITY:4, PROJECT_TYPE:8, SKILL:9, COUNTRY:10, CITY:11,
+  HOURS:12, FIRST_TIME:13, TOOL:14,
+};
+
+let charts = {};
+let surveyData = {};
+
+function v(row, col) { const val = row[col-1]; return val !== undefined ? String(val).trim() : ''; }
+function n(row, col) { const val = parseFloat(v(row, col)); return isNaN(val) ? null : val; }
+
+function sheetURL(id, tab) {
+  return `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(tab)}?key=${API_KEY}`;
 }
 
-async function loadData() {
+async function fetchSheet(id, tab) {
+  const res = await fetch(sheetURL(id, tab));
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Fetch failed'); }
+  const json = await res.json();
+  return (json.values || []).slice(1).filter(r => r.length > 1);
+}
+
+async function loadAll() {
   const dot = document.getElementById('status-dot');
   const label = document.getElementById('refresh-label');
   dot.classList.remove('live');
   label.textContent = 'Loading...';
   document.getElementById('error-area').innerHTML = '';
-
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(TAB_NAME)}?key=${API_KEY}`;
+  document.getElementById('loading-area').style.display = 'block';
+  document.getElementById('dashboard').style.display = 'none';
 
   try {
-    const res = await fetch(url);
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error?.message || 'Failed to fetch sheet data');
-    }
-    const json = await res.json();
-    const rows = json.values || [];
-    if (rows.length < 2) throw new Error('No data found in sheet.');
-
-    const dataRows = rows.slice(1).filter(r => v(r, COL.CHARITY));
-    renderDashboard(dataRows);
-
+    const [rows1, rows2] = await Promise.all([
+      fetchSheet(SHEET1_ID, SHEET1_TAB),
+      fetchSheet(SHEET2_ID, SHEET2_TAB),
+    ]);
+    renderDashboard(rows1, rows2);
     dot.classList.add('live');
     label.textContent = 'Refresh data';
-    document.getElementById('last-updated').textContent = new Date().toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' });
+    document.getElementById('last-updated').textContent =
+      new Date().toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' });
     document.getElementById('loading-area').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
-
-  } catch (err) {
+  } catch(err) {
     document.getElementById('loading-area').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('error-area').innerHTML = `
-      <div class="error-box">
-        Could not load live data: <strong>${err.message}</strong><br>
-        Check your API key and that the sheet is shared as "Anyone with the link can view".
-        Showing last loaded data if available.
-      </div>`;
+    document.getElementById('error-area').innerHTML =
+      `<div class="error-box">Could not load live data: <strong>${err.message}</strong><br>
+      Make sure both sheets are shared as "Anyone with the link can view".</div>`;
     label.textContent = 'Retry';
   }
 }
 
-// Merge rows by organisation name
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function avg(arr) { return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null; }
+
+function countBy(arr) {
+  return arr.reduce((acc, val) => {
+    if (!val || val === '—' || val === '') return acc;
+    acc[val] = (acc[val] || 0) + 1;
+    return acc;
+  }, {});
+}
+
+function topN(obj, n) {
+  return Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,n);
+}
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
 function mergeOrgs(rows) {
   const map = {};
   rows.forEach(row => {
     const raw = v(row, COL.CHARITY);
-    const key = raw.toLowerCase().replace(/\s*\(.*?\)/g, '').trim();
-    const name = raw.replace(/\s*\(.*?\)/g, '').trim();
-    if (!map[key]) {
-      map[key] = {
-        name,
-        types: new Set(),
-        vols: 0,
-        hours: 0,
-        vizHours: 0,
-        students: 0,
-        sat: [],
-        recommend: [],
-        quotes: [],
-        surveyRows: [],
-      };
-    }
+    const key = raw.toLowerCase().replace(/\s*\(.*?\)/g,'').trim();
+    const name = raw.replace(/\s*\(.*?\)/g,'').trim();
+    if (!map[key]) map[key] = { name, types:new Set(), vols:0, hours:0, vizHours:0, students:0, sat:[], recommend:[], quotes:[], surveyRows:[] };
     const o = map[key];
     const type = v(row, COL.TYPE).toLowerCase();
     o.types.add(type);
@@ -268,12 +322,11 @@ function mergeOrgs(rows) {
     o.hours += n(row, COL.GRAND_TOTAL) || n(row, COL.HOURS_PROJECT) || 0;
     o.students += n(row, COL.STUDENTS) || 0;
     if (type.includes('visuali')) o.vizHours += n(row, COL.GRAND_TOTAL) || n(row, COL.HOURS_PROJECT) || 0;
-    const sat = n(row, COL.OVERALL_SAT) || n(row, COL.SATISFACTION);
+    const sat = n(row, COL.OVERALL_SAT);
     if (sat) o.sat.push(sat);
-    const rec = n(row, COL.LIKELY_RECOMMEND) || n(row, COL.RECOMMEND);
+    const rec = n(row, COL.LIKELY_RECOMMEND);
     if (rec) o.recommend.push(rec);
-    const q = v(row, COL.QUOTES);
-    if (q) o.quotes.push({ text: q, org: name });
+    const q = v(row, COL.QUOTES); if (q) o.quotes.push({ text: q, org: name });
     o.surveyRows.push(row);
   });
   return Object.values(map);
@@ -284,33 +337,27 @@ function getTypeInfo(types) {
   if (arr.length > 1) return { label: 'Multiple', badge: 'badge-multi' };
   const t = arr[0] || '';
   if (t.includes('visuali')) return { label: 'Data viz', badge: 'badge-viz' };
-  if (t.includes('wrangle') || t.includes('wrangling')) return { label: 'Data wrangling', badge: 'badge-wrangle' };
+  if (t.includes('wrangle')) return { label: 'Data wrangling', badge: 'badge-multi' };
   if (t.includes('learn') || t.includes('educat')) return { label: 'Learning', badge: 'badge-edu' };
   if (t.includes('health')) return { label: 'Health check', badge: 'badge-health' };
   return { label: t || '—', badge: 'badge-viz' };
 }
 
-function avg(arr) {
-  if (!arr.length) return null;
-  return arr.reduce((a, b) => a + b, 0) / arr.length;
-}
-
-let surveyData = {};
-
-function renderDashboard(rows) {
-  const orgs = mergeOrgs(rows);
+// ── Main render ───────────────────────────────────────────────────────────────
+function renderDashboard(rows1, rows2) {
+  const orgs = mergeOrgs(rows1.filter(r => v(r, COL.CHARITY)));
 
   // Subtitle
-  const dates = rows.map(r => v(r, COL.DATE)).filter(Boolean);
   document.getElementById('subtitle').textContent =
-    `Impact dashboard — ${orgs.length} organisations · ${rows.length} projects`;
+    `Impact dashboard — ${orgs.length} organisations · ${rows1.length} projects · ${rows2.length} volunteer submissions`;
 
-  // ── Metrics ──────────────────────────────────────────────────────────────
-  const totalHours = orgs.reduce((s, o) => s + o.hours, 0);
-  const totalVols  = orgs.reduce((s, o) => s + o.vols, 0);
-  const totalStudents = orgs.reduce((s, o) => s + o.students, 0);
-  const allSat = orgs.flatMap(o => o.sat);
+  // ── Key metrics ──────────────────────────────────────────────────────────
+  const totalHours = orgs.reduce((s,o)=>s+o.hours,0);
+  const totalVols  = orgs.reduce((s,o)=>s+o.vols,0);
+  const totalStudents = orgs.reduce((s,o)=>s+o.students,0);
+  const allSat = orgs.flatMap(o=>o.sat);
   const avgSat = avg(allSat);
+  const totalSubmissions = rows2.length;
 
   document.getElementById('metric-grid').innerHTML = `
     <div class="metric metric-accent">
@@ -328,6 +375,11 @@ function renderDashboard(rows) {
       <div class="metric-value">${orgs.length}</div>
       <div class="metric-sub">unique organisations</div>
     </div>
+    <div class="metric">
+      <div class="metric-label">Submissions</div>
+      <div class="metric-value">${totalSubmissions}</div>
+      <div class="metric-sub">across all projects</div>
+    </div>
     ${totalStudents > 0 ? `<div class="metric">
       <div class="metric-label">Students trained</div>
       <div class="metric-value">${totalStudents}</div>
@@ -340,118 +392,247 @@ function renderDashboard(rows) {
     </div>` : ''}
   `;
 
-  // ── Hours chart ───────────────────────────────────────────────────────────
-  const vizOrgs = orgs.filter(o => o.vizHours > 0);
-  if (hoursChartInstance) hoursChartInstance.destroy();
-  hoursChartInstance = new Chart(document.getElementById('hoursChart'), {
+  // ── Hours chart ──────────────────────────────────────────────────────────
+  const vizOrgs = orgs.filter(o=>o.vizHours>0);
+  destroyChart('hours');
+  charts.hours = new Chart(document.getElementById('hoursChart'), {
     type: 'bar',
     data: {
-      labels: vizOrgs.map(o => o.name.length > 14 ? o.name.slice(0,13)+'…' : o.name),
-      datasets: [{
-        data: vizOrgs.map(o => o.vizHours),
-        backgroundColor: '#1D9E75',
-        borderRadius: 4,
-        borderSkipped: false,
-      }]
+      labels: vizOrgs.map(o=>o.name.length>14?o.name.slice(0,13)+'…':o.name),
+      datasets: [{ data: vizOrgs.map(o=>o.vizHours), backgroundColor:'#1D9E75', borderRadius:4, borderSkipped:false }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.raw.toLocaleString() + ' hrs' } } },
-      scales: {
-        x: { ticks: { font: { size: 10 }, maxRotation: 45, autoSkip: false }, grid: { display: false } },
-        y: { ticks: { font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.04)' } }
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.raw.toLocaleString()+' hrs'}} },
+      scales:{
+        x:{ticks:{font:{size:10},maxRotation:45,autoSkip:false},grid:{display:false}},
+        y:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,0.04)'}}
       }
     }
   });
 
-  // ── Survey data ───────────────────────────────────────────────────────────
+  // ── Survey ───────────────────────────────────────────────────────────────
   surveyData = {
-    data: { title: 'Confident discussing data internally (1–5)', items: [] },
-    literacy: { title: 'Overall data literacy is strong (1–5)', items: [] },
-    impact: { title: 'Confident demonstrating impact to funders (1–5)', items: [] },
-    decisions: { title: 'Making decisions based on data (1–5)', items: [] },
+    data:      { title:'Confident discussing data internally (1–5)', items:[] },
+    literacy:  { title:'Overall data literacy is strong (1–5)', items:[] },
+    impact:    { title:'Confident demonstrating impact to funders (1–5)', items:[] },
+    decisions: { title:'Making decisions based on data (1–5)', items:[] },
   };
   orgs.forEach(org => {
     org.surveyRows.forEach(row => {
-      const pre_d  = n(row, COL.PRE_DATA);
-      const post_d = n(row, COL.POST_DATA);
-      const pre_l  = n(row, COL.PRE_LITERACY);
-      const post_l = n(row, COL.POST_LITERACY);
-      const pre_i  = n(row, COL.PRE_IMPACT);
-      const post_i = n(row, COL.POST_IMPACT);
-      const pre_dc = n(row, COL.PRE_DECISIONS);
-      const post_dc= n(row, COL.POST_DECISIONS);
-      if (pre_d || post_d) surveyData.data.items.push({ org: org.name, before: pre_d, after: post_d });
-      if (pre_l || post_l) surveyData.literacy.items.push({ org: org.name, before: pre_l, after: post_l });
-      if (pre_i || post_i) surveyData.impact.items.push({ org: org.name, before: pre_i, after: post_i });
-      if (pre_dc || post_dc) surveyData.decisions.items.push({ org: org.name, before: pre_dc, after: post_dc });
+      const pd=n(row,COL.PRE_DATA), qd=n(row,COL.POST_DATA);
+      const pl=n(row,COL.PRE_LITERACY), ql=n(row,COL.POST_LITERACY);
+      const pi=n(row,COL.PRE_IMPACT), qi=n(row,COL.POST_IMPACT);
+      const pdc=n(row,COL.PRE_DECISIONS), qdc=n(row,COL.POST_DECISIONS);
+      if(pd||qd) surveyData.data.items.push({org:org.name,before:pd,after:qd});
+      if(pl||ql) surveyData.literacy.items.push({org:org.name,before:pl,after:ql});
+      if(pi||qi) surveyData.impact.items.push({org:org.name,before:pi,after:qi});
+      if(pdc||qdc) surveyData.decisions.items.push({org:org.name,before:pdc,after:qdc});
     });
   });
   showSurvey('data', document.querySelector('.tab'));
 
-  // ── Quotes ────────────────────────────────────────────────────────────────
-  const allQuotes = orgs.flatMap(o => o.quotes).filter(q => q.text.length > 20);
-  const topQuotes = allQuotes.slice(0, 4);
-  document.getElementById('quotes-grid').innerHTML = topQuotes.map(q => {
+  // ── Quotes ───────────────────────────────────────────────────────────────
+  const allQuotes = orgs.flatMap(o=>o.quotes).filter(q=>q.text.length>20).slice(0,4);
+  document.getElementById('quotes-grid').innerHTML = allQuotes.map(q => {
     const sentences = q.text.split(/[.!?][""]?\s+/);
-    const display = sentences[0].length > 30 ? sentences[0] : sentences.slice(0,2).join('. ');
+    const display = sentences[0].length>30 ? sentences[0] : sentences.slice(0,2).join('. ');
     const clean = display.replace(/^[""]/, '').replace(/[""]$/, '').trim();
     return `<div class="quote-card">
       <div class="quote-mark">"</div>
-      <div class="quote-text">${clean}${clean.endsWith('.') ? '' : '.'}</div>
+      <div class="quote-text">${clean}${clean.endsWith('.')?'':'.'}</div>
       <div class="quote-org">${q.org}</div>
     </div>`;
   }).join('');
 
-  // ── Table ─────────────────────────────────────────────────────────────────
+  // ── Org table ────────────────────────────────────────────────────────────
   document.getElementById('proj-tbody').innerHTML = orgs.map(o => {
-    const { label, badge } = getTypeInfo(o.types);
+    const {label,badge} = getTypeInfo(o.types);
     const satAvg = avg(o.sat);
     const recAvg = avg(o.recommend);
     const satStr = satAvg
-      ? '★'.repeat(Math.round(satAvg)) + '<span style="color:#d3d1c7">' + '★'.repeat(5 - Math.round(satAvg)) + '</span>'
+      ? '★'.repeat(Math.round(satAvg))+'<span style="color:#d3d1c7">'+'★'.repeat(5-Math.round(satAvg))+'</span>'
       : '<span style="color:#d3d1c7">—</span>';
     return `<tr>
       <td style="font-weight:500;">${o.name}</td>
       <td><span class="badge ${badge}">${label}</span></td>
-      <td>${o.vols || '—'}</td>
+      <td>${o.vols||'—'}</td>
       <td>${Math.round(o.hours).toLocaleString()}</td>
-      <td>${o.students || '—'}</td>
+      <td>${o.students||'—'}</td>
       <td><span class="stars">${satStr}</span></td>
-      <td>${recAvg ? recAvg.toFixed(1) + '/5' : '<span style="color:#d3d1c7">—</span>'}</td>
+      <td>${recAvg?recAvg.toFixed(1)+'/5':'<span style="color:#d3d1c7">—</span>'}</td>
     </tr>`;
   }).join('');
 
-  // ── Insights ──────────────────────────────────────────────────────────────
-  const largestOrg = orgs.reduce((a, b) => a.hours > b.hours ? a : b);
-  const largestPct = Math.round(largestOrg.hours / totalHours * 100);
-  const completedSurveys = orgs.filter(o => o.sat.length > 0).length;
+  // ════════════════════════════════════════════════════════════════════════
+  // VOLUNTEER SECTION — Sheet 2
+  // ════════════════════════════════════════════════════════════════════════
+  const volRows = rows2.filter(r => v(r, VOL.SKILL) || v(r, VOL.COUNTRY) || v(r, VOL.TOOL));
 
-  document.getElementById('insight-row').innerHTML = `
-    <div class="insight-card">
-      <div class="insight-num">${totalVols}</div>
-      <div class="insight-label">Volunteers contributed time and expertise across ${orgs.length} nonprofits</div>
+  const skills    = volRows.map(r => v(r, VOL.SKILL)).filter(Boolean);
+  const countries = volRows.map(r => v(r, VOL.COUNTRY)).filter(Boolean);
+  const cities    = volRows.map(r => v(r, VOL.CITY)).filter(Boolean);
+  const tools     = volRows.flatMap(r => v(r, VOL.TOOL).split(/[,;/]/).map(t=>t.trim())).filter(Boolean);
+  const firstTime = volRows.map(r => v(r, VOL.FIRST_TIME)).filter(Boolean);
+
+  const uniqueCountries = new Set(countries).size;
+  const uniqueCities    = new Set(cities).size;
+  const firstTimers     = firstTime.filter(f => /yes|y|true|1/i.test(f)).length;
+  const firstTimePct    = firstTime.length ? Math.round(firstTimers/firstTime.length*100) : 0;
+
+  // Vol stat cards
+  document.getElementById('vol-stat-row').innerHTML = `
+    <div class="metric">
+      <div class="metric-label">Submissions</div>
+      <div class="metric-value">${volRows.length}</div>
+      <div class="metric-sub">volunteer entries</div>
     </div>
-    <div class="insight-card">
-      <div class="insight-num">${largestPct}%</div>
-      <div class="insight-label">Of all hours delivered to ${largestOrg.name} — the flagship engagement</div>
+    <div class="metric metric-accent">
+      <div class="metric-label">Countries</div>
+      <div class="metric-value">${uniqueCountries}</div>
+      <div class="metric-sub">represented</div>
     </div>
-    <div class="insight-card">
-      <div class="insight-num">${avgSat ? avgSat.toFixed(1)+'/5' : '—'}</div>
-      <div class="insight-label">Average satisfaction score across ${completedSurveys} completed post-project surveys</div>
+    <div class="metric">
+      <div class="metric-label">Cities</div>
+      <div class="metric-value">${uniqueCities}</div>
+      <div class="metric-sub">volunteer locations</div>
     </div>
-    <div class="insight-card">
-      <div class="insight-num">${totalHours.toLocaleString()}</div>
-      <div class="insight-label">Total hours of data expertise delivered to the social sector</div>
+    <div class="metric">
+      <div class="metric-label">First-timers</div>
+      <div class="metric-value">${firstTimePct}%</div>
+      <div class="metric-sub">new to programme</div>
     </div>
   `;
 
+  // Skill chart
+  const skillCounts = countBy(skills);
+  const skillOrder  = ['Beginner','Intermediate','Advanced','Expert'];
+  const skillLabels = skillOrder.filter(s => skillCounts[s]);
+  const skillVals   = skillLabels.map(s => skillCounts[s]||0);
+  const skillColors = ['#378ADD','#534AB7','#1D9E75','#0F6E56'];
+
+  destroyChart('skill');
+  charts.skill = new Chart(document.getElementById('skillChart'), {
+    type: 'bar',
+    data: {
+      labels: skillLabels.length ? skillLabels : Object.keys(skillCounts),
+      datasets: [{ data: skillLabels.length ? skillVals : Object.values(skillCounts),
+        backgroundColor: skillColors, borderRadius:4, borderSkipped:false }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.raw+' volunteers'}} },
+      scales:{
+        x:{ticks:{font:{size:10}},grid:{display:false}},
+        y:{ticks:{font:{size:10},stepSize:1},grid:{color:'rgba(0,0,0,0.04)'}}
+      }
+    }
+  });
+
+  // Tool chart — top 6
+  const toolCounts = countBy(tools);
+  const topTools   = topN(toolCounts, 6);
+  destroyChart('tool');
+  charts.tool = new Chart(document.getElementById('toolChart'), {
+    type: 'bar',
+    data: {
+      labels: topTools.map(([t])=>t.length>12?t.slice(0,11)+'…':t),
+      datasets: [{ data: topTools.map(([,c])=>c),
+        backgroundColor:'#534AB7', borderRadius:4, borderSkipped:false }]
+    },
+    options: {
+      indexAxis:'y',
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.raw+' uses'}} },
+      scales:{
+        x:{ticks:{font:{size:10},stepSize:1},grid:{color:'rgba(0,0,0,0.04)'}},
+        y:{ticks:{font:{size:10}},grid:{display:false}}
+      }
+    }
+  });
+
+  // Country chart — top 6
+  const countryCounts = countBy(countries);
+  const topCountries  = topN(countryCounts, 6);
+  destroyChart('country');
+  charts.country = new Chart(document.getElementById('countryChart'), {
+    type: 'bar',
+    data: {
+      labels: topCountries.map(([c])=>c.length>14?c.slice(0,13)+'…':c),
+      datasets: [{ data: topCountries.map(([,n])=>n),
+        backgroundColor:'#1D9E75', borderRadius:4, borderSkipped:false }]
+    },
+    options: {
+      indexAxis:'y',
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.raw+' volunteers'}} },
+      scales:{
+        x:{ticks:{font:{size:10},stepSize:1},grid:{color:'rgba(0,0,0,0.04)'}},
+        y:{ticks:{font:{size:10}},grid:{display:false}}
+      }
+    }
+  });
+
+  // Cities pill list
+  const topCities = topN(countBy(cities), 12);
+  document.getElementById('cities-list').innerHTML =
+    `<div class="pill-list">${topCities.map(([city,cnt],i)=>
+      `<span class="pill ${i<3?'pill-highlight':''}">${city} <strong>${cnt}</strong></span>`
+    ).join('')}</div>`;
+
+  // First time chart
+  const ftYes = firstTime.filter(f=>/yes|y|true|1/i.test(f)).length;
+  const ftNo  = firstTime.length - ftYes;
+  destroyChart('firstTime');
+  charts.firstTime = new Chart(document.getElementById('firstTimeChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['First time','Returning'],
+      datasets: [{ data:[ftYes,ftNo], backgroundColor:['#1D9E75','#D3D1C7'], borderWidth:2, borderColor:'#fff' }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ position:'bottom', labels:{font:{size:11},padding:12,boxWidth:10} },
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/firstTime.length*100)}%)`}}
+      }
+    }
+  });
+
+  // ── Insights ─────────────────────────────────────────────────────────────
+  const largestOrg = orgs.reduce((a,b)=>a.hours>b.hours?a:b);
+  const largestPct = Math.round(largestOrg.hours/totalHours*100);
+  const completedSurveys = orgs.filter(o=>o.sat.length>0).length;
+  const topSkill = topN(skillCounts,1)[0];
+  const topTool  = topN(toolCounts,1)[0];
+
+  document.getElementById('insight-row').innerHTML = `
+    <div class="insight-card">
+      <div class="insight-num">${uniqueCountries}</div>
+      <div class="insight-label">Countries represented across our volunteer community</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num">${firstTimePct}%</div>
+      <div class="insight-label">Of volunteers are participating in Data ChangeMakers for the first time</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num">${largestPct}%</div>
+      <div class="insight-label">Of all hours were delivered to ${largestOrg.name} — the flagship project</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num">${avgSat?avgSat.toFixed(1)+'/5':'—'}</div>
+      <div class="insight-label">Average satisfaction across ${completedSurveys} post-project surveys</div>
+    </div>
+  `;
+
+  const topToolStr  = topTool  ? ` The most used tool is ${topTool[0]}.` : '';
+  const topSkillStr = topSkill ? ` Most volunteers self-identify as ${topSkill[0].toLowerCase()} level.` : '';
   document.getElementById('callout-text').textContent =
-    `Data confidence improved on every measured dimension where before/after survey data is available. ${completedSurveys} of ${orgs.length} organisations have completed post-project surveys — collecting these consistently will strengthen future impact reporting.`;
+    `Volunteers span ${uniqueCountries} countries and ${uniqueCities} cities, reflecting a truly global community.${topSkillStr}${topToolStr} ${completedSurveys} of ${orgs.length} organisations have completed post-project surveys — collecting these consistently will strengthen future impact reporting.`;
 }
 
 function showSurvey(key, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   if (btn) btn.classList.add('active');
   const d = surveyData[key];
   if (!d) return;
@@ -464,22 +645,18 @@ function showSurvey(key, btn) {
   d.items.forEach(item => {
     html += `<div style="margin-bottom:12px;">
       <div style="font-size:12px;font-weight:500;color:#1a1a18;margin-bottom:5px;">${item.org}</div>`;
-    if (item.before !== null) {
-      html += `<div class="bar-row"><div class="bar-label">Before project</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${item.before/5*100}%;background:#b4b2a9;"></div></div>
-        <div class="bar-val">${item.before}/5</div></div>`;
-    }
-    if (item.after !== null) {
-      html += `<div class="bar-row"><div class="bar-label">After project</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${item.after/5*100}%;background:#1d9e75;"></div></div>
-        <div class="bar-val">${item.after}/5</div></div>`;
-    }
+    if (item.before!==null) html += `<div class="bar-row"><div class="bar-label">Before project</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${item.before/5*100}%;background:#b4b2a9;"></div></div>
+      <div class="bar-val">${item.before}/5</div></div>`;
+    if (item.after!==null) html += `<div class="bar-row"><div class="bar-label">After project</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${item.after/5*100}%;background:#1d9e75;"></div></div>
+      <div class="bar-val">${item.after}/5</div></div>`;
     html += '</div>';
   });
   container.innerHTML = html;
 }
 
-loadData();
+loadAll();
 </script>
 </body>
 </html>
