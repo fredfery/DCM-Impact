@@ -285,6 +285,7 @@ body {
   <select id="filter-type"><option value="">All project types</option></select>
   <select id="filter-skill"><option value="">All skill levels</option></select>
   <select id="filter-country"><option value="">All countries</option></select>
+  <select id="filter-volunteer"><option value="">All volunteers</option></select>
   <select id="filter-firsttime"><option value="">First time?</option><option value="yes">First timers</option><option value="no">Returning</option></select>
   <div class="view-toggle">
     <button class="view-btn active" id="btn-gallery" onclick="setView('gallery')">
@@ -483,6 +484,24 @@ function populateFilters() {
     const o = document.createElement('option'); o.value = c; o.textContent = c; charitySel.appendChild(o);
   });
 
+  // Volunteer filter — sorted alphabetically by full name
+  const volSel = document.getElementById('filter-volunteer');
+  const volFirst = volSel.options[0];
+  volSel.innerHTML = '';
+  volSel.appendChild(volFirst);
+  const uniqueVols = [...new Map(
+    allData
+      .filter(d => d.firstName || d.lastName)
+      .map(d => {
+        const name = [d.firstName, d.lastName].filter(Boolean).join(' ');
+        return [name, name];
+      })
+  ).entries()]
+  .sort((a, b) => a[0].localeCompare(b[0]));
+  uniqueVols.forEach(([name]) => {
+    const o = document.createElement('option'); o.value = name; o.textContent = name; volSel.appendChild(o);
+  });
+
   fill('filter-type',    allData.map(d=>d.type));
   fill('filter-skill',   allData.map(d=>d.skill));
   fill('filter-country', allData.map(d=>d.country));
@@ -494,15 +513,17 @@ function getFiltered() {
   const type    = document.getElementById('filter-type').value;
   const skill   = document.getElementById('filter-skill').value;
   const country = document.getElementById('filter-country').value;
-  const ft      = document.getElementById('filter-firsttime').value;
+  const ft        = document.getElementById('filter-firsttime').value;
+  const volunteer = document.getElementById('filter-volunteer').value;
 
   return allData.filter(d => {
-    const name = `${d.firstName} ${d.lastName}`.toLowerCase();
+    const name = `${d.firstName} ${d.lastName}`.toLowerCase().trim();
     if (search && !name.includes(search) && !d.tool.toLowerCase().includes(search) && !d.city.toLowerCase().includes(search) && !d.topic.toLowerCase().includes(search)) return false;
     if (charity && d.charity !== charity) return false;
     if (type    && d.type !== type)       return false;
     if (skill   && d.skill !== skill)     return false;
     if (country && d.country !== country) return false;
+    if (volunteer && name !== volunteer.toLowerCase()) return false;
     if (ft === 'yes' && !/yes|y|true/i.test(d.firstTime)) return false;
     if (ft === 'no'  && /yes|y|true/i.test(d.firstTime))  return false;
     return true;
@@ -807,7 +828,7 @@ function goPage(p) {
 }
 
 // ── Event listeners ────────────────────────────────────────────────────
-['search','filter-charity','filter-type','filter-skill','filter-country','filter-firsttime']
+['search','filter-charity','filter-type','filter-skill','filter-country','filter-firsttime','filter-volunteer']
   .forEach(id => document.getElementById(id).addEventListener('input', render));
 
 // Keyboard navigation for modal
