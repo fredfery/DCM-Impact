@@ -911,10 +911,11 @@ function renderMap(data) {
       iconAnchor: [size/2, size/2],
     });
 
-    const names = loc.volunteers.slice(0,5).map(v =>
-      `<div style="padding:2px 0;border-bottom:1px solid #f1f5f9;font-size:11px;">${[v.firstName,v.lastName].filter(Boolean).join(' ')||'Volunteer'}</div>`
+    const uniqueNames = [...new Set(loc.volunteers.map(v => [v.firstName,v.lastName].filter(Boolean).join(' ')||'Volunteer'))];
+    const names = uniqueNames.slice(0,5).map(n =>
+      `<div style="padding:2px 0;border-bottom:1px solid #f1f5f9;font-size:11px;">${n}</div>`
     ).join('');
-    const more = loc.volunteers.length > 5 ? `<div style="font-size:10px;color:#888;margin-top:4px;">+${loc.volunteers.length-5} more</div>` : '';
+    const more = uniqueNames.length > 5 ? `<div style="font-size:10px;color:#888;margin-top:4px;">+${uniqueNames.length-5} more</div>` : '';
 
     L.marker(loc.coords, { icon }).bindPopup(`
       <div style="min-width:150px;">
