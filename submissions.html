@@ -873,11 +873,13 @@ function initMap() {
   if (map) return;
   map = L.map('volunteer-map', { zoomControl: true, scrollWheelZoom: false })
     .setView([20, 10], 2);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
-    subdomains: 'abcd', maxZoom: 19
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19
   }).addTo(map);
   markerLayer = L.layerGroup().addTo(map);
+  // Force redraw after container is fully visible
+  setTimeout(() => { map.invalidateSize(); }, 200);
 }
 
 function renderMap(data) {
@@ -923,12 +925,15 @@ function renderMap(data) {
   });
 
   document.getElementById('map-count').textContent = `${plotted} volunteers mapped`;
-  if (locations.length > 0) {
-    const bounds = L.latLngBounds(locations.map(l => l.coords));
-    map.fitBounds(bounds, { padding: [60, 60], maxZoom: 4 });
-  } else {
-    map.setView([20, 10], 2);
-  }
+  setTimeout(() => {
+    map.invalidateSize();
+    if (locations.length > 0) {
+      const bounds = L.latLngBounds(locations.map(l => l.coords));
+      map.fitBounds(bounds, { padding: [60, 60], maxZoom: 4 });
+    } else {
+      map.setView([20, 10], 2);
+    }
+  }, 250);
 }
 
 // ── Export PNG ────────────────────────────────────────────────────────
