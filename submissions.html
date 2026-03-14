@@ -576,7 +576,7 @@ function getFiltered() {
   const ft        = document.getElementById('filter-firsttime').value;
   const volunteer = document.getElementById('filter-volunteer').value;
 
-  return allData.filter(d => {
+  return [...allData].sort((a, b) => new Date(b.date) - new Date(a.date)).filter(d => {
     const name = `${d.firstName} ${d.lastName}`.toLowerCase().trim();
     if (search && !name.includes(search) && !d.tool.toLowerCase().includes(search) && !d.city.toLowerCase().includes(search) && !d.topic.toLowerCase().includes(search)) return false;
     if (charity && d.charity !== charity) return false;
