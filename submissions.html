@@ -925,7 +925,9 @@ function renderMap(data) {
   document.getElementById('map-count').textContent = `${plotted} volunteers mapped`;
   if (locations.length > 0) {
     const bounds = L.latLngBounds(locations.map(l => l.coords));
-    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 6 });
+    map.fitBounds(bounds, { padding: [60, 60], maxZoom: 4 });
+  } else {
+    map.setView([20, 10], 2);
   }
 }
 
