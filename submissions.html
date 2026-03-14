@@ -886,21 +886,26 @@ function renderMap(data) {
   initMap();
   markerLayer.clearLayers();
 
-  // Group by location
+  // Group by location — deduplicate by volunteer name so dot = unique people
   const locMap = {};
   data.forEach(d => {
     const coords = geoLookup(d.city, d.country);
     if (!coords) return;
     const key = coords.join(',');
-    if (!locMap[key]) locMap[key] = { coords, volunteers: [], city: d.city, country: d.country };
-    locMap[key].volunteers.push(d);
+    if (!locMap[key]) locMap[key] = { coords, volunteers: new Map(), city: d.city, country: d.country };
+    const name = [d.firstName, d.lastName].filter(Boolean).join(' ') || 'Volunteer';
+    locMap[key].volunteers.set(name, d);
   });
 
-  const locations = Object.values(locMap);
+  const locations = Object.values(locMap).map(loc => ({
+    ...loc,
+    volunteers: [...loc.volunteers.values()],
+    names: [...loc.volunteers.keys()],
+  }));
   let plotted = 0;
 
   locations.forEach(loc => {
-    const count = loc.volunteers.length;
+    const count = loc.names.length;
     const size = Math.min(8 + count * 3, 28);
     plotted += count;
 
@@ -911,21 +916,20 @@ function renderMap(data) {
       iconAnchor: [size/2, size/2],
     });
 
-    const uniqueNames = [...new Set(loc.volunteers.map(v => [v.firstName,v.lastName].filter(Boolean).join(' ')||'Volunteer'))];
-    const names = uniqueNames.slice(0,5).map(n =>
+    const nameList = loc.names.slice(0,5).map(n =>
       `<div style="padding:2px 0;border-bottom:1px solid #f1f5f9;font-size:11px;">${n}</div>`
     ).join('');
-    const more = uniqueNames.length > 5 ? `<div style="font-size:10px;color:#888;margin-top:4px;">+${uniqueNames.length-5} more</div>` : '';
+    const more = loc.names.length > 5 ? `<div style="font-size:10px;color:#888;margin-top:4px;">+${loc.names.length-5} more</div>` : '';
 
     L.marker(loc.coords, { icon }).bindPopup(`
       <div style="min-width:150px;">
         <div style="font-weight:700;font-size:12px;margin-bottom:6px;">${loc.city||loc.country} <span style="color:#1D9E75;font-size:11px;">(${count})</span></div>
-        ${names}${more}
+        ${nameList}${more}
       </div>
     `).addTo(markerLayer);
   });
 
-  document.getElementById('map-count').textContent = `${plotted} volunteers mapped`;
+  document.getElementById('map-count').textContent = `${plotted} unique volunteers mapped`;
   setTimeout(() => {
     map.invalidateSize();
     if (locations.length > 0) {
