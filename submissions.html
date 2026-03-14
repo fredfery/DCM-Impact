@@ -287,6 +287,11 @@ body {
     <!-- Charts -->
     <div class="charts-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
       <div class="chart-card">
+        <div class="card-title">Submissions over time</div>
+        <div class="card-sub">submissions per project</div>
+        <div style="position:relative;height:180px;"><canvas id="trendChart"></canvas></div>
+      </div>
+      <div class="chart-card">
         <div class="card-title">Skill level</div>
         <div class="card-sub">self-reported by volunteers</div>
         <div style="position:relative;height:180px;"><canvas id="skillChart"></canvas></div>
@@ -300,11 +305,6 @@ body {
         <div class="card-title">Top countries</div>
         <div class="card-sub">where volunteers are based</div>
         <div style="position:relative;height:180px;"><canvas id="countryChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="card-title">Submissions over time</div>
-        <div class="card-sub">submissions per project</div>
-        <div style="position:relative;height:180px;"><canvas id="trendChart"></canvas></div>
       </div>
     </div>
 
@@ -501,7 +501,6 @@ function renderKPIs(data) {
     <div class="kpi"><div class="kpi-val">${countries}</div><div class="kpi-label">Countries represented</div></div>
     <div class="kpi"><div class="kpi-val">${pct}%</div><div class="kpi-label">First-time participants</div></div>
     <div class="kpi"><div class="kpi-val">${tools}</div><div class="kpi-label">Unique tools used</div></div>
-    <div class="kpi"><div class="kpi-val">${data.filter(d=>/yes/i.test(d.present)).length}</div><div class="kpi-label">Selected to present</div></div>
   `;
 }
 
