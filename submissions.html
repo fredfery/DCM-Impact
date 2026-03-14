@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data ChangeMakers — Submissions</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --teal: #1D9E75;
+  --teal-light: #E1F5EE;
+  --teal-mid: #9FE1CB;
+  --teal-dark: #0F6E56;
+  --ink: #141412;
+  --ink-2: #3a3a36;
+  --muted: #888780;
+  --faint: #b4b2a9;
+  --bg: #f5f4f0;
+  --white: #ffffff;
+  --border: rgba(0,0,0,0.08);
+  --radius: 16px;
+  --radius-lg: 24px;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.site-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.logo { height: 44px; width: auto; }
+.header-title { font-size: 18px; font-weight: 700; color: var(--ink); }
+.header-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.status-pill {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--muted);
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 99px; padding: 5px 12px;
+}
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
+.status-dot.live { background: var(--teal); }
+
+/* ── Controls ── */
+.controls {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 2rem;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 280px; }
+.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--faint); pointer-events: none; }
+.controls input, .controls select {
+  font-family: inherit; font-size: 13px; color: var(--ink);
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 10px; padding: 7px 12px; outline: none;
+  transition: border-color 0.15s;
+}
+.controls input { padding-left: 32px; width: 100%; }
+.controls input:focus, .controls select:focus { border-color: var(--teal); }
+.controls select { cursor: pointer; min-width: 150px; }
+
+.view-toggle { display: flex; gap: 4px; margin-left: auto; }
+.view-btn {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 10px; cursor: pointer;
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  font-family: inherit; transition: all 0.15s;
+  display: flex; align-items: center; gap: 5px;
+}
+.view-btn.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+/* ── Page layout ── */
+.page { max-width: 1280px; margin: 0 auto; padding: 2rem; }
+
+/* ── KPI strip ── */
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.kpi {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+}
+.kpi-val { font-size: 32px; font-weight: 700; color: var(--ink); line-height: 1; }
+.kpi-val.green { color: var(--teal-dark); }
+.kpi-label { font-size: 12px; color: var(--muted); margin-top: 5px; }
+
+/* ── Charts row ── */
+.charts-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 2rem; }
+.chart-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1.25rem 1.5rem;
+}
+.card-title { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+.card-sub { font-size: 11px; color: var(--faint); margin-bottom: 14px; }
+
+/* ── Gallery grid ── */
+#gallery-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.gallery-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.gallery-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+.gallery-img {
+  width: 100%; height: 180px; object-fit: cover;
+  background: var(--bg); display: block;
+}
+.gallery-img-placeholder {
+  width: 100%; height: 180px;
+  background: linear-gradient(135deg, var(--teal-light) 0%, #f5f4f0 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--teal-mid); font-size: 36px;
+}
+.gallery-body { padding: 14px 16px; }
+.gallery-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+.gallery-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.gallery-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.tag {
+  font-size: 10px; font-weight: 600; padding: 2px 8px;
+  border-radius: 99px; background: var(--bg); color: var(--muted);
+  border: 1px solid var(--border);
+}
+.tag.teal { background: var(--teal-light); color: var(--teal-dark); border-color: var(--teal-mid); }
+.tag.present { background: #faeeda; color: #854f0b; border-color: #fac775; }
+.gallery-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; color: var(--teal-dark);
+  text-decoration: none; margin-top: 10px;
+  border-top: 1px solid var(--border); padding-top: 10px; width: 100%;
+}
+.gallery-link:hover { color: var(--teal); }
+
+/* ── Table view ── */
+#table-view { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th {
+  text-align: left; padding: 10px 16px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+  background: var(--bg); border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.data-table td { padding: 12px 16px; border-bottom: 1px solid rgba(0,0,0,0.04); color: var(--ink); vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--teal-light); }
+.name-cell { font-weight: 600; }
+.skill-pill { font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+.skill-beginner { background: #e6f1fb; color: #185fa5; }
+.skill-intermediate { background: #eeedfe; color: #534ab7; }
+.skill-advanced { background: var(--teal-light); color: var(--teal-dark); }
+.skill-expert { background: #faeeda; color: #854f0b; }
+
+/* ── Loading ── */
+.loading { text-align: center; padding: 5rem 2rem; color: var(--muted); }
+.spinner { width: 32px; height: 32px; border: 2px solid var(--border); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 1rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Error ── */
+.error { background: #faece7; border-radius: var(--radius); padding: 14px 18px; color: #993c1d; font-size: 13px; margin-bottom: 1.5rem; }
+
+/* ── Empty state ── */
+.empty { text-align: center; padding: 4rem 2rem; color: var(--muted); font-size: 14px; }
+
+/* ── Modal ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 200;
+  align-items: center; justify-content: center; padding: 1rem;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: var(--radius-lg);
+  max-width: 640px; width: 100%; max-height: 90vh; overflow-y: auto;
+  padding: 2rem;
+}
+.modal-img { width: 100%; border-radius: var(--radius); margin-bottom: 1.5rem; object-fit: cover; max-height: 320px; }
+.modal-name { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 1rem; }
+.modal-field label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 0.06em; display: block; margin-bottom: 3px; }
+.modal-field span { font-size: 13px; color: var(--ink); }
+.modal-close { float: right; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 5px 12px; cursor: pointer; font-family: inherit; font-size: 12px; color: var(--muted); }
+
+/* ── Result count ── */
+.result-count { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+
+@media (max-width: 768px) {
+  .charts-row { grid-template-columns: 1fr; }
+  .page { padding: 1rem; }
+  .site-header { padding: 1rem; }
+  .controls { padding: 10px 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="header-left">
+    <img src="https://static.wixstatic.com/media/2608ce_4ffd1217cfad49bb950c7e852ea7dbc0~mv2.png/v1/crop/x_0,y_84,w_1280,h_857/fill/w_133,h_89,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/FullLogo_Transparent.png" alt="Data ChangeMakers" class="logo">
+    <div>
+      <div class="header-title">Volunteer Submissions</div>
+      <div class="header-sub" id="header-sub">Loading...</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-pill">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-label">Connecting...</span>
+    </div>
+    <button onclick="loadData()" style="font-family:inherit;font-size:12px;font-weight:600;padding:6px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:#fff;cursor:pointer;color:#888780;">↺ Refresh</button>
+  </div>
+</header>
+
+<!-- Controls -->
+<div class="controls">
+  <div class="search-wrap">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="search" placeholder="Search name, tool, city...">
+  </div>
+  <select id="filter-charity"><option value="">All charities</option></select>
+  <select id="filter-type"><option value="">All project types</option></select>
+  <select id="filter-skill"><option value="">All skill levels</option></select>
+  <select id="filter-country"><option value="">All countries</option></select>
+  <select id="filter-firsttime"><option value="">First time?</option><option value="yes">First timers</option><option value="no">Returning</option></select>
+  <div class="view-toggle">
+    <button class="view-btn active" id="btn-gallery" onclick="setView('gallery')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Gallery
+    </button>
+    <button class="view-btn" id="btn-table" onclick="setView('table')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      Table
+    </button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="page">
+  <div id="error-area"></div>
+  <div id="loading-area" class="loading">
+    <div class="spinner"></div>
+    Loading submissions...
+  </div>
+
+  <div id="main-content" style="display:none;">
+
+    <!-- KPIs -->
+    <div class="kpi-row" id="kpi-row"></div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="card-title">Skill level</div>
+        <div class="card-sub">self-reported by volunteers</div>
+        <div style="position:relative;height:180px;"><canvas id="skillChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="card-title">Tools used</div>
+        <div class="card-sub">top tools across submissions</div>
+        <div style="position:relative;height:180px;"><canvas id="toolChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="card-title">Top countries</div>
+        <div class="card-sub">where volunteers are based</div>
+        <div style="position:relative;height:180px;"><canvas id="countryChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Result count -->
+    <div class="result-count" id="result-count"></div>
+
+    <!-- Gallery -->
+    <div id="gallery-view"></div>
+
+    <!-- Table -->
+    <div id="table-view" style="display:none;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Charity</th>
+            <th>Project type</th>
+            <th>Skill</th>
+            <th>Country</th>
+            <th>City</th>
+            <th>Hours</th>
+            <th>Tool</th>
+            <th>First time</th>
+            <th>Link</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-inner">
+    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">Close</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────
+const API_KEY  = 'AIzaSyAtOXeiYk4A9KwEnj4LY3VB_ypJ8O69DlQ';
+const SHEET_ID = '14jOgDE-a7-I7Rns9zERGTcA2ounblIdli2b5v-sWYSg';
+const TAB_NAME = 'All Submissions';
+// ─────────────────────────────────────────────────────────────────────────
+
+// Column indices (1-based)
+// Submission ID, Project ID, Date, Charity Name, First name, Last name, Email,
+// Project Type, Skill, Country, City, Hours, First time, Tool, Link, Screenshot,
+// Charity Country, Topic, Selected to Present
+const C = { ID:1, PID:2, DATE:3, CHARITY:4, FNAME:5, LNAME:6, EMAIL:7,
+  TYPE:8, SKILL:9, COUNTRY:10, CITY:11, HOURS:12, FIRSTTIME:13,
+  TOOL:14, LINK:15, SCREENSHOT:16, CHARITY_COUNTRY:17, TOPIC:18, PRESENT:19 };
+
+let allData = [];
+let currentView = 'gallery';
+let charts = {};
+
+function v(row, col) { return row[col-1] !== undefined ? String(row[col-1]).trim() : ''; }
+function n(row, col) { return parseFloat(v(row, col).replace(/[$,]/g,'')) || 0; }
+
+async function loadData() {
+  document.getElementById('status-dot').classList.remove('live');
+  document.getElementById('status-label').textContent = 'Loading...';
+  document.getElementById('error-area').innerHTML = '';
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(TAB_NAME)}?key=${API_KEY}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Fetch failed'); }
+    const json = await res.json();
+    const rows = (json.values || []).slice(1).filter(r => r.some(c => String(c).trim() !== ''));
+    allData = rows.map(row => ({
+      id:         v(row, C.ID),
+      date:       v(row, C.DATE),
+      charity:    v(row, C.CHARITY),
+      firstName:  v(row, C.FNAME),
+      lastName:   v(row, C.LNAME),
+      type:       v(row, C.TYPE),
+      skill:      v(row, C.SKILL),
+      country:    v(row, C.COUNTRY),
+      city:       v(row, C.CITY),
+      hours:      n(row, C.HOURS),
+      firstTime:  v(row, C.FIRSTTIME),
+      tool:       v(row, C.TOOL),
+      link:       v(row, C.LINK),
+      screenshot: v(row, C.SCREENSHOT),
+      topic:      v(row, C.TOPIC),
+      present:    v(row, C.PRESENT),
+    })).filter(r => r.firstName || r.charity);
+
+    populateFilters();
+    render();
+
+    document.getElementById('status-dot').classList.add('live');
+    document.getElementById('status-label').textContent = `Updated ${new Date().toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'})}`;
+    document.getElementById('loading-area').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    document.getElementById('header-sub').textContent = `${allData.length} submissions across ${new Set(allData.map(d=>d.charity)).size} organisations`;
+
+  } catch(err) {
+    document.getElementById('loading-area').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    document.getElementById('error-area').innerHTML = `<div class="error">Could not load data: <strong>${err.message}</strong>. Make sure the sheet is shared as "Anyone with the link can view".</div>`;
+    document.getElementById('status-label').textContent = 'Error — retry';
+  }
+}
+
+function populateFilters() {
+  const fill = (id, values) => {
+    const sel = document.getElementById(id);
+    const first = sel.options[0];
+    sel.innerHTML = '';
+    sel.appendChild(first);
+    [...new Set(values)].filter(Boolean).sort().forEach(v => {
+      const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o);
+    });
+  };
+  fill('filter-charity', allData.map(d=>d.charity));
+  fill('filter-type',    allData.map(d=>d.type));
+  fill('filter-skill',   allData.map(d=>d.skill));
+  fill('filter-country', allData.map(d=>d.country));
+}
+
+function getFiltered() {
+  const search  = document.getElementById('search').value.toLowerCase();
+  const charity = document.getElementById('filter-charity').value;
+  const type    = document.getElementById('filter-type').value;
+  const skill   = document.getElementById('filter-skill').value;
+  const country = document.getElementById('filter-country').value;
+  const ft      = document.getElementById('filter-firsttime').value;
+
+  return allData.filter(d => {
+    const name = `${d.firstName} ${d.lastName}`.toLowerCase();
+    if (search && !name.includes(search) && !d.tool.toLowerCase().includes(search) && !d.city.toLowerCase().includes(search) && !d.topic.toLowerCase().includes(search)) return false;
+    if (charity && d.charity !== charity) return false;
+    if (type    && d.type !== type)       return false;
+    if (skill   && d.skill !== skill)     return false;
+    if (country && d.country !== country) return false;
+    if (ft === 'yes' && !/yes|y|true/i.test(d.firstTime)) return false;
+    if (ft === 'no'  && /yes|y|true/i.test(d.firstTime))  return false;
+    return true;
+  });
+}
+
+function render() {
+  const data = getFiltered();
+  renderKPIs(data);
+  renderCharts(data);
+  renderGallery(data);
+  renderTable(data);
+  document.getElementById('result-count').textContent = `Showing ${data.length} of ${allData.length} submissions`;
+}
+
+// ── KPIs ────────────────────────────────────────────────────────────────
+function renderKPIs(data) {
+  const totalHours = data.reduce((s,d)=>s+d.hours,0);
+  const countries  = new Set(data.map(d=>d.country).filter(Boolean)).size;
+  const firstTime  = data.filter(d=>/yes|y|true/i.test(d.firstTime)).length;
+  const pct        = data.length ? Math.round(firstTime/data.length*100) : 0;
+  const tools      = new Set(data.flatMap(d=>d.tool.split(/[,;/]/).map(t=>t.trim())).filter(Boolean)).size;
+
+  document.getElementById('kpi-row').innerHTML = `
+    <div class="kpi"><div class="kpi-val green">${data.length}</div><div class="kpi-label">Total submissions</div></div>
+    <div class="kpi"><div class="kpi-val">${totalHours.toLocaleString()}</div><div class="kpi-label">Hours contributed</div></div>
+    <div class="kpi"><div class="kpi-val">${countries}</div><div class="kpi-label">Countries represented</div></div>
+    <div class="kpi"><div class="kpi-val">${pct}%</div><div class="kpi-label">First-time participants</div></div>
+    <div class="kpi"><div class="kpi-val">${tools}</div><div class="kpi-label">Unique tools used</div></div>
+    <div class="kpi"><div class="kpi-val">${data.filter(d=>/yes/i.test(d.present)).length}</div><div class="kpi-label">Selected to present</div></div>
+  `;
+}
+
+// ── Charts ──────────────────────────────────────────────────────────────
+function countBy(arr) {
+  return arr.filter(Boolean).reduce((a,v)=>{ a[v]=(a[v]||0)+1; return a; }, {});
+}
+function topN(obj, n) {
+  return Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,n);
+}
+function destroyChart(id) { if(charts[id]){ charts[id].destroy(); delete charts[id]; } }
+
+function renderCharts(data) {
+  // Skill
+  destroyChart('skill');
+  const skillMap = countBy(data.map(d=>d.skill));
+  const skillOrder = ['Beginner','Intermediate','Advanced','Expert'];
+  const skillLabels = skillOrder.filter(s=>skillMap[s]).length ? skillOrder.filter(s=>skillMap[s]) : Object.keys(skillMap);
+  charts.skill = new Chart(document.getElementById('skillChart'), {
+    type:'bar',
+    data:{ labels:skillLabels, datasets:[{ data:skillLabels.map(s=>skillMap[s]||0), backgroundColor:'#1D9E75', borderRadius:6, borderSkipped:false }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{ticks:{font:{size:10}},grid:{display:false}}, y:{ticks:{font:{size:10},stepSize:1},grid:{color:'rgba(0,0,0,0.04)'}} } }
+  });
+
+  // Tools
+  destroyChart('tool');
+  const allTools = data.flatMap(d=>d.tool.split(/[,;\/]/).map(t=>t.trim())).filter(Boolean);
+  const toolTop = topN(countBy(allTools), 6);
+  charts.tool = new Chart(document.getElementById('toolChart'), {
+    type:'bar',
+    data:{ labels:toolTop.map(([t])=>t.length>14?t.slice(0,13)+'…':t), datasets:[{ data:toolTop.map(([,c])=>c), backgroundColor:'#534AB7', borderRadius:6, borderSkipped:false }] },
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{ticks:{font:{size:10},stepSize:1},grid:{color:'rgba(0,0,0,0.04)'}}, y:{ticks:{font:{size:10}},grid:{display:false}} } }
+  });
+
+  // Countries
+  destroyChart('country');
+  const countryTop = topN(countBy(data.map(d=>d.country)), 6);
+  charts.country = new Chart(document.getElementById('countryChart'), {
+    type:'bar',
+    data:{ labels:countryTop.map(([c])=>c.length>14?c.slice(0,13)+'…':c), datasets:[{ data:countryTop.map(([,n])=>n), backgroundColor:'#378ADD', borderRadius:6, borderSkipped:false }] },
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{ticks:{font:{size:10},stepSize:1},grid:{color:'rgba(0,0,0,0.04)'}}, y:{ticks:{font:{size:10}},grid:{display:false}} } }
+  });
+}
+
+// ── Gallery ────────────────────────────────────────────────────────────
+function skillClass(s) {
+  const l = (s||'').toLowerCase();
+  if (l.includes('begin')) return 'skill-beginner';
+  if (l.includes('inter')) return 'skill-intermediate';
+  if (l.includes('advan')) return 'skill-advanced';
+  if (l.includes('expert')) return 'skill-expert';
+  return '';
+}
+
+function renderGallery(data) {
+  const el = document.getElementById('gallery-view');
+  if (!data.length) { el.innerHTML = '<div class="empty">No submissions match your filters.</div>'; return; }
+
+  el.innerHTML = data.map((d,i) => {
+    const name = [d.firstName, d.lastName].filter(Boolean).join(' ') || 'Volunteer';
+    const hasImg = d.screenshot && d.screenshot.startsWith('http');
+    const imgHtml = hasImg
+      ? `<img class="gallery-img" src="${d.screenshot}" alt="${name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+         <div class="gallery-img-placeholder" style="display:none;">📊</div>`
+      : `<div class="gallery-img-placeholder">📊</div>`;
+
+    return `<div class="gallery-card" onclick="openModal(${i})" data-idx="${i}">
+      ${imgHtml}
+      <div class="gallery-body">
+        <div class="gallery-name">${name}</div>
+        <div class="gallery-meta">${d.charity}${d.city ? ' · ' + d.city : ''}${d.country ? ', ' + d.country : ''}</div>
+        <div class="gallery-tags">
+          ${d.skill ? `<span class="tag ${skillClass(d.skill)}">${d.skill}</span>` : ''}
+          ${d.tool  ? d.tool.split(/[,;\/]/).slice(0,2).map(t=>`<span class="tag">${t.trim()}</span>`).join('') : ''}
+          ${/yes/i.test(d.present) ? `<span class="tag present">✦ Presenter</span>` : ''}
+        </div>
+        ${d.link ? `<a class="gallery-link" href="${d.link}" target="_blank" onclick="event.stopPropagation()">View submission →</a>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Table ──────────────────────────────────────────────────────────────
+function renderTable(data) {
+  document.getElementById('table-body').innerHTML = data.map(d => {
+    const name = [d.firstName, d.lastName].filter(Boolean).join(' ') || '—';
+    return `<tr>
+      <td class="name-cell">${name}</td>
+      <td>${d.charity||'—'}</td>
+      <td>${d.type||'—'}</td>
+      <td><span class="skill-pill ${skillClass(d.skill)}">${d.skill||'—'}</span></td>
+      <td>${d.country||'—'}</td>
+      <td>${d.city||'—'}</td>
+      <td>${d.hours||'—'}</td>
+      <td>${d.tool||'—'}</td>
+      <td>${/yes|y|true/i.test(d.firstTime)?'✓ Yes':'No'}</td>
+      <td>${d.link ? `<a href="${d.link}" target="_blank" style="color:var(--teal-dark);font-weight:600;font-size:11px;">View →</a>` : '—'}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="10" style="text-align:center;padding:3rem;color:var(--muted);">No results found.</td></tr>';
+}
+
+// ── Modal ──────────────────────────────────────────────────────────────
+function openModal(idx) {
+  const data = getFiltered();
+  const d = data[idx];
+  if (!d) return;
+  const name = [d.firstName, d.lastName].filter(Boolean).join(' ') || 'Volunteer';
+  const hasImg = d.screenshot && d.screenshot.startsWith('http');
+
+  document.getElementById('modal-content').innerHTML = `
+    ${hasImg ? `<img class="modal-img" src="${d.screenshot}" alt="${name}">` : ''}
+    <div class="modal-name">${name}</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:2px;">${d.charity} · ${d.type}</div>
+    <div class="modal-grid">
+      <div class="modal-field"><label>Skill level</label><span>${d.skill||'—'}</span></div>
+      <div class="modal-field"><label>Tool used</label><span>${d.tool||'—'}</span></div>
+      <div class="modal-field"><label>Country</label><span>${d.country||'—'}</span></div>
+      <div class="modal-field"><label>City</label><span>${d.city||'—'}</span></div>
+      <div class="modal-field"><label>Hours contributed</label><span>${d.hours||'—'}</span></div>
+      <div class="modal-field"><label>First time</label><span>${/yes|y|true/i.test(d.firstTime)?'Yes ✓':'No'}</span></div>
+      ${d.topic ? `<div class="modal-field" style="grid-column:1/-1"><label>Topic</label><span>${d.topic}</span></div>` : ''}
+      ${/yes/i.test(d.present) ? `<div class="modal-field" style="grid-column:1/-1"><label>Selected to present</label><span style="color:var(--teal-dark);font-weight:600;">✦ Yes — selected to present</span></div>` : ''}
+    </div>
+    ${d.link ? `<a href="${d.link}" target="_blank" style="display:inline-block;margin-top:1.25rem;background:var(--teal);color:#fff;padding:8px 18px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;">View full submission →</a>` : ''}
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('open');
+  }
+}
+
+// ── View toggle ────────────────────────────────────────────────────────
+function setView(v) {
+  currentView = v;
+  document.getElementById('gallery-view').style.display = v === 'gallery' ? 'grid' : 'none';
+  document.getElementById('table-view').style.display   = v === 'table'   ? 'block' : 'none';
+  document.getElementById('btn-gallery').classList.toggle('active', v === 'gallery');
+  document.getElementById('btn-table').classList.toggle('active', v === 'table');
+}
+
+// ── Event listeners ────────────────────────────────────────────────────
+['search','filter-charity','filter-type','filter-skill','filter-country','filter-firsttime']
+  .forEach(id => document.getElementById(id).addEventListener('input', render));
+
+loadData();
+</script>
+</body>
+</html>
