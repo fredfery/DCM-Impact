@@ -202,6 +202,28 @@ body {
 .modal-field span { font-size: 13px; color: var(--ink); }
 .modal-close { float: right; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 5px 12px; cursor: pointer; font-family: inherit; font-size: 12px; color: var(--muted); }
 
+/* ── Modal nav arrows ── */
+.modal-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 48px; height: 48px;
+  font-size: 28px; line-height: 1;
+  cursor: pointer; color: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  z-index: 201;
+  font-family: inherit;
+}
+.modal-nav:hover { background: var(--teal); color: var(--white); border-color: var(--teal); }
+.modal-nav:disabled { opacity: 0.25; cursor: not-allowed; }
+.modal-prev { left: calc(50% - 380px); }
+.modal-next { right: calc(50% - 380px); }
+.modal-counter { font-size: 11px; color: var(--muted); font-weight: 600; }
+
 /* ── Result count ── */
 .result-count { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
 
@@ -346,10 +368,15 @@ body {
 
 <!-- Modal -->
 <div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <button class="modal-nav modal-prev" id="modal-prev" onclick="navigateModal(-1)">&#8249;</button>
   <div class="modal" id="modal-inner">
-    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">Close</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <span class="modal-counter" id="modal-counter"></span>
+      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">Close</button>
+    </div>
     <div id="modal-content"></div>
   </div>
+  <button class="modal-nav modal-next" id="modal-next" onclick="navigateModal(1)">&#8250;</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -681,12 +708,32 @@ function renderTable(data) {
 }
 
 // ── Modal ──────────────────────────────────────────────────────────────
+let currentModalIdx = 0;
+
 function openModal(idx) {
+  currentModalIdx = idx;
+  renderModal();
+  document.getElementById('modal').classList.add('open');
+}
+
+function navigateModal(dir) {
   const data = getFiltered();
-  const d = data[idx];
+  const next = currentModalIdx + dir;
+  if (next < 0 || next >= data.length) return;
+  currentModalIdx = next;
+  renderModal();
+}
+
+function renderModal() {
+  const data = getFiltered();
+  const d = data[currentModalIdx];
   if (!d) return;
   const name = [d.firstName, d.lastName].filter(Boolean).join(' ') || 'Volunteer';
   const hasImg = d.screenshot && d.screenshot.startsWith('http');
+
+  document.getElementById('modal-counter').textContent = `${currentModalIdx + 1} of ${data.length}`;
+  document.getElementById('modal-prev').disabled = currentModalIdx === 0;
+  document.getElementById('modal-next').disabled = currentModalIdx === data.length - 1;
 
   document.getElementById('modal-content').innerHTML = `
     ${hasImg ? `<img class="modal-img" src="${d.screenshot}" alt="${name}">` : ''}
@@ -704,7 +751,6 @@ function openModal(idx) {
     </div>
     ${d.link ? `<a href="${d.link}" target="_blank" style="display:inline-block;margin-top:1.25rem;background:var(--teal);color:#fff;padding:8px 18px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;">View full submission →</a>` : ''}
   `;
-  document.getElementById('modal').classList.add('open');
 }
 
 function closeModal(e) {
@@ -763,6 +809,15 @@ function goPage(p) {
 // ── Event listeners ────────────────────────────────────────────────────
 ['search','filter-charity','filter-type','filter-skill','filter-country','filter-firsttime']
   .forEach(id => document.getElementById(id).addEventListener('input', render));
+
+// Keyboard navigation for modal
+document.addEventListener('keydown', e => {
+  const modal = document.getElementById('modal');
+  if (!modal.classList.contains('open')) return;
+  if (e.key === 'ArrowRight') navigateModal(1);
+  if (e.key === 'ArrowLeft')  navigateModal(-1);
+  if (e.key === 'Escape') modal.classList.remove('open');
+});
 
 loadData();
 </script>
