@@ -6,6 +6,7 @@
 <title>Data ChangeMakers — Submissions</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -245,6 +246,10 @@ body {
       <span id="status-label">Connecting...</span>
     </div>
     <button onclick="loadData()" style="font-family:inherit;font-size:12px;font-weight:600;padding:6px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:#fff;cursor:pointer;color:#888780;">↺ Refresh</button>
+    <button onclick="exportPNG()" id="export-btn" style="font-family:inherit;font-size:12px;font-weight:600;padding:6px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--teal);color:#fff;cursor:pointer;display:flex;align-items:center;gap:6px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export PNG
+    </button>
   </div>
 </header>
 
@@ -715,6 +720,34 @@ function setView(v) {
   document.getElementById('table-view').style.display   = v === 'table'   ? 'block' : 'none';
   document.getElementById('btn-gallery').classList.toggle('active', v === 'gallery');
   document.getElementById('btn-table').classList.toggle('active', v === 'table');
+}
+
+// ── Export PNG ────────────────────────────────────────────────────────
+async function exportPNG() {
+  const btn = document.getElementById('export-btn');
+  const origText = btn.innerHTML;
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 0.7s linear infinite"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0"/></svg> Exporting...';
+  btn.disabled = true;
+
+  try {
+    const el = document.getElementById('main-content');
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#f5f4f0',
+      logging: false,
+      ignoreElements: el => el.id === 'pagination'
+    });
+    const link = document.createElement('a');
+    link.download = `dcm-submissions-${new Date().toISOString().slice(0,10)}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch(err) {
+    alert('Export failed: ' + err.message);
+  } finally {
+    btn.innerHTML = origText;
+    btn.disabled = false;
+  }
 }
 
 // ── Pagination ────────────────────────────────────────────────────────
