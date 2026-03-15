@@ -403,6 +403,7 @@ function renderDashboard(rows1, rows2, rows3) {
   const allSat = orgs.flatMap(o=>o.sat);
   const avgSat = avg(allSat);
   const totalSubmissions = rows2.length;
+  const avgHoursPerProject = orgs.length ? Math.round(totalHours / orgs.length) : 0;
 
   // Volunteer overall experience average from feedback sheet
   const fbAllRows = (rows3 || []).filter(r => v(r, FB.OVERALL));
@@ -428,9 +429,9 @@ function renderDashboard(rows1, rows2, rows3) {
       <div class="metric-sub">unique organisations</div>
     </div>
     <div class="metric">
-      <div class="metric-label">Submissions</div>
-      <div class="metric-value">${totalSubmissions}</div>
-      <div class="metric-sub">across all projects</div>
+      <div class="metric-label">Avg hours / project</div>
+      <div class="metric-value">${avgHoursPerProject}</div>
+      <div class="metric-sub">volunteer hours avg</div>
     </div>
 
     ${avgSat ? `<div class="metric">
@@ -671,7 +672,18 @@ function renderDashboard(rows1, rows2, rows3) {
   });
 
   // Cities pill list
-  const topCities = topN(countBy(cities), 12);
+  // Count unique volunteers per city (deduplicate by name+city)
+  const cityVolMap = {};
+  volRows.forEach(r => {
+    const city = v(r, VOL.CITY);
+    if (!city) return;
+    const name = (v(r, VOL.CITY) + '_' + (r[4]||'') + (r[5]||'')).trim();
+    if (!cityVolMap[city]) cityVolMap[city] = new Set();
+    cityVolMap[city].add((r[4]||'') + ' ' + (r[5]||''));
+  });
+  const topCities = Object.entries(cityVolMap)
+    .map(([city, nameSet]) => [city, nameSet.size])
+    .sort((a,b) => b[1]-a[1]).slice(0,12);
   document.getElementById('cities-list').innerHTML =
     `<div class="pill-list">${topCities.map(([city,cnt],i)=>
       `<span class="pill ${i<3?'pill-highlight':''}">${city} <strong>${cnt}</strong></span>`
