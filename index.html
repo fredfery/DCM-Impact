@@ -421,12 +421,18 @@ function renderDashboard(rows1, rows2, rows3) {
 
     ${avgSat ? `<div class="metric">
       <div class="metric-label">Organisation feedback</div>
-      <div class="metric-value">${avgSat.toFixed(1)}/5</div>
+      <div class="metric-value" style="font-size:18px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <span>${Array.from({length:5},(_,i)=>'<span style="color:'+(i<Math.round(avgSat)?'#ef9f27':'#d3d1c7')+';font-size:16px;">★</span>').join('')}</span>
+        <span style="font-size:13px;font-weight:400;color:#888780;">${avgSat.toFixed(1)}/5</span>
+      </div>
       <div class="metric-sub">post-project survey avg</div>
     </div>` : ''}
     ${volOverallAvg ? `<div class="metric">
       <div class="metric-label">Volunteer overall exp.</div>
-      <div class="metric-value">${volOverallAvg}/5</div>
+      <div class="metric-value" style="font-size:18px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <span>${Array.from({length:5},(_,i)=>'<span style="color:'+(i<Math.round(parseFloat(volOverallAvg))?'#ef9f27':'#d3d1c7')+';font-size:16px;">★</span>').join('')}</span>
+        <span style="font-size:13px;font-weight:400;color:#888780;">${volOverallAvg}/5</span>
+      </div>
       <div class="metric-sub">volunteer feedback avg</div>
     </div>` : ''}
   `;
