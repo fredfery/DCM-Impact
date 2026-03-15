@@ -143,14 +143,29 @@
         </div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Survey results — pre vs post confidence</div>
-        <div class="tabs">
-          <button class="tab active" onclick="showSurvey('data', this)">Data</button>
-          <button class="tab" onclick="showSurvey('literacy', this)">Literacy</button>
-          <button class="tab" onclick="showSurvey('impact', this)">Impact</button>
-          <button class="tab" onclick="showSurvey('decisions', this)">Decisions</button>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+          <div class="chart-title" id="survey-panel-title">Organisation impact</div>
+          <div style="display:flex;gap:4px;">
+            <button id="toggle-org" class="tab active" onclick="setSurveyPanel('org',this)" style="font-size:11px;padding:3px 10px;">Organisation impact</button>
+            <button id="toggle-vol" class="tab" onclick="setSurveyPanel('vol',this)" style="font-size:11px;padding:3px 10px;">Volunteer feedback</button>
+          </div>
         </div>
-        <div id="survey-data" class="survey-section"></div>
+
+        <!-- Org survey view -->
+        <div id="panel-org">
+          <div class="tabs">
+            <button class="tab active" onclick="showSurvey('data', this)">Data</button>
+            <button class="tab" onclick="showSurvey('literacy', this)">Literacy</button>
+            <button class="tab" onclick="showSurvey('impact', this)">Impact</button>
+            <button class="tab" onclick="showSurvey('decisions', this)">Decisions</button>
+          </div>
+          <div id="survey-data" class="survey-section"></div>
+        </div>
+
+        <!-- Volunteer feedback view -->
+        <div id="panel-vol" style="display:none;">
+          <div id="inline-fb-ratings" style="margin-top:4px;"></div>
+        </div>
       </div>
     </div>
 
@@ -650,6 +665,7 @@ function renderDashboard(rows1, rows2, rows3) {
   const topTool  = topN(toolCounts,1)[0];
 
   renderFeedback(rows3);
+  renderInlineFeedback(rows3);
 
   document.getElementById('insight-row').innerHTML = `
     <div class="insight-card">
@@ -724,6 +740,48 @@ function renderFeedback(rows3) {
       <div class="chart-title" style="margin-bottom:12px;">What volunteers enjoyed</div>
       ${enjoyedHtml || '<div style="font-size:12px;color:#b4b2a9;">No comments yet.</div>'}
     </div>
+  `;
+}
+
+function setSurveyPanel(panel, btn) {
+  document.querySelectorAll('#toggle-org, #toggle-vol').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-org').style.display = panel === 'org' ? 'block' : 'none';
+  document.getElementById('panel-vol').style.display = panel === 'vol' ? 'block' : 'none';
+  document.getElementById('survey-panel-title').textContent =
+    panel === 'org' ? 'Organisation impact' : 'Volunteer feedback';
+}
+
+function renderInlineFeedback(rows3) {
+  const fbRows = (rows3 || []).filter(r => v(r, FB.OVERALL));
+  const el = document.getElementById('inline-fb-ratings');
+  if (!el) return;
+  if (!fbRows.length) { el.innerHTML = '<div style="font-size:12px;color:#b4b2a9;padding-top:8px;">No feedback data yet.</div>'; return; }
+
+  const ratingKeys = [
+    { col: FB.OVERALL,   label: 'Overall experience' },
+    { col: FB.CHARITY_Q, label: 'Charity choice' },
+    { col: FB.DATA,      label: 'Data & instructions' },
+    { col: FB.SUPPORT,   label: 'DCM support' },
+    { col: FB.LIVE,      label: 'Live event format' },
+  ];
+
+  el.innerHTML = `
+    <div style="font-size:11px;color:#b4b2a9;margin-bottom:10px;">${fbRows.length} responses · avg ratings out of 5</div>
+    ${ratingKeys.map(({ col, label }) => {
+      const vals = fbRows.map(r => n(r, col)).filter(x => x > 0);
+      const avg = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
+      const rounded = (Math.round(avg * 10)/10).toFixed(1);
+      const fullStars = Math.round(avg);
+      const stars = Array.from({length:5},(_,i) =>
+        `<span style="font-size:13px;color:${i<fullStars?'#ef9f27':'#d3d1c7'}">★</span>`
+      ).join('');
+      return `<div class="bar-row">
+        <div class="bar-label">${label}</div>
+        <div style="display:flex;gap:2px;align-items:center;">${stars}</div>
+        <div class="bar-val" style="width:32px;">${rounded}/5</div>
+      </div>`;
+    }).join('')}
   `;
 }
 
