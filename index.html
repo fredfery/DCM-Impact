@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Data ChangeMakers — Impact Dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -214,10 +216,12 @@
     </div>
 
     <div class="charts-row">
-      <div class="chart-card">
-        <div class="chart-title">Top cities</div>
-        <div class="chart-sub">where our volunteers are based</div>
-        <div id="cities-list" style="margin-top: 4px;"></div>
+      <div class="chart-card" style="padding:0;overflow:hidden;">
+        <div style="padding:1rem 1.25rem 0.5rem;">
+          <div class="chart-title">Volunteer locations</div>
+          <div class="chart-sub">cities where our volunteers are based — <span id="cities-map-count"></span></div>
+        </div>
+        <div id="cities-map" style="height:240px;width:100%;"></div>
       </div>
       <div class="chart-card">
         <div class="chart-title">First-time participants</div>
@@ -298,6 +302,71 @@ async function fetchSheet(id, tab, skipRows = 1) {
   if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Fetch failed'); }
   const json = await res.json();
   return (json.values || []).slice(skipRows).filter(r => r.some(c => String(c).trim() !== ""));
+}
+
+const CITY_GEO = {
+  'sydney':[-33.86,151.20],'melbourne':[-37.81,144.96],'brisbane':[-27.47,153.02],'perth':[-31.95,115.86],
+  'adelaide':[-34.92,138.60],'auckland':[-36.84,174.76],'london':[51.50,-0.12],'manchester':[53.48,-2.24],
+  'birmingham':[52.48,-1.89],'edinburgh':[55.95,-3.18],'dublin':[53.33,-6.24],'new york city':[40.71,-74.00],
+  'new york':[40.71,-74.00],'los angeles':[34.05,-118.24],'chicago':[41.87,-87.62],'san francisco':[37.77,-122.41],
+  'seattle':[47.60,-122.33],'boston':[42.36,-71.05],'toronto':[43.65,-79.38],'vancouver':[49.24,-123.11],
+  'montreal':[45.50,-73.56],'ottawa':[45.42,-75.69],'bangalore':[12.97,77.59],'mumbai':[19.07,72.87],
+  'delhi':[28.61,77.20],'hyderabad':[17.38,78.48],'chennai':[13.08,80.27],'pune':[18.52,73.85],
+  'berlin':[52.52,13.40],'munich':[48.13,11.57],'hamburg':[53.55,9.99],'paris':[48.85,2.35],
+  'amsterdam':[52.37,4.89],'barcelona':[41.38,2.15],'madrid':[40.41,-3.70],'rome':[41.89,12.48],
+  'milan':[45.46,9.18],'zurich':[47.37,8.54],'brussels':[50.85,4.35],'stockholm':[59.33,18.06],
+  'oslo':[59.91,10.75],'copenhagen':[55.67,12.56],'helsinki':[60.16,24.93],'singapore':[1.35,103.81],
+  'tokyo':[35.68,139.69],'seoul':[37.56,126.97],'beijing':[39.90,116.40],'shanghai':[31.22,121.47],
+  'hong kong':[22.31,114.17],'nairobi':[-1.28,36.81],'cape town':[-33.92,18.42],'johannesburg':[-26.20,28.04],
+  'karachi':[24.86,67.01],'lahore':[31.55,74.34],'dhaka':[23.81,90.41],'colombo':[6.92,79.84],
+  'jakarta':[-6.21,106.84],'kuala lumpur':[3.14,101.68],'manila':[14.59,120.97],'bangkok':[13.75,100.52],
+  'buenos aires':[-34.60,-58.38],'sao paulo':[-23.54,-46.62],'bogota':[4.71,-74.07],
+  'mexico city':[19.42,-99.13],'ruston':[32.52,-92.63],'carmel':[36.55,-121.92],
+  'maidenhead':[51.52,-0.72],'norwich':[52.63,1.30],'arlington':[32.73,-97.10],
+  'vijayanagara':[15.34,76.46],'vijayanagara, karnataka':[15.34,76.46],
+};
+
+let citiesMap = null;
+let citiesMarkerLayer = null;
+
+function renderCitiesMap(topCities) {
+  const el = document.getElementById('cities-map');
+  if (!el || typeof L === 'undefined') return;
+
+  if (!citiesMap) {
+    citiesMap = L.map('cities-map', { zoomControl: true, scrollWheelZoom: false }).setView([20,10],2);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap', maxZoom: 19
+    }).addTo(citiesMap);
+    citiesMarkerLayer = L.layerGroup().addTo(citiesMap);
+  }
+  citiesMarkerLayer.clearLayers();
+
+  const plotted = [];
+  topCities.forEach(([city, count]) => {
+    const coords = CITY_GEO[city.toLowerCase()];
+    if (!coords) return;
+    const size = Math.min(8 + count * 4, 28);
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:#1D9E75;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:${count>1?9:0}px;font-weight:700;">${count>1?count:''}</div>`,
+      iconSize:[size,size], iconAnchor:[size/2,size/2],
+    });
+    L.marker(coords, {icon}).bindPopup(
+      `<div style="font-family:sans-serif;font-size:12px;"><strong>${city}</strong><br>${count} volunteer${count>1?'s':''}</div>`
+    ).addTo(citiesMarkerLayer);
+    plotted.push(coords);
+  });
+
+  const countEl = document.getElementById('cities-map-count');
+  if (countEl) countEl.textContent = `${plotted.length} cities mapped`;
+
+  setTimeout(() => {
+    citiesMap.invalidateSize();
+    if (plotted.length > 0) {
+      citiesMap.fitBounds(L.latLngBounds(plotted), { padding:[20,20], maxZoom:4 });
+    }
+  }, 200);
 }
 
 async function loadAll() {
@@ -672,22 +741,20 @@ function renderDashboard(rows1, rows2, rows3) {
   });
 
   // Cities pill list
-  // Count unique volunteers per city (deduplicate by name+city)
+  // Count unique volunteers per city
   const cityVolMap = {};
   volRows.forEach(r => {
     const city = v(r, VOL.CITY);
     if (!city) return;
-    const name = (v(r, VOL.CITY) + '_' + (r[4]||'') + (r[5]||'')).trim();
     if (!cityVolMap[city]) cityVolMap[city] = new Set();
-    cityVolMap[city].add((r[4]||'') + ' ' + (r[5]||''));
+    cityVolMap[city].add(((r[4]||'') + ' ' + (r[5]||'')).trim());
   });
   const topCities = Object.entries(cityVolMap)
     .map(([city, nameSet]) => [city, nameSet.size])
-    .sort((a,b) => b[1]-a[1]).slice(0,12);
-  document.getElementById('cities-list').innerHTML =
-    `<div class="pill-list">${topCities.map(([city,cnt],i)=>
-      `<span class="pill ${i<3?'pill-highlight':''}">${city} <strong>${cnt}</strong></span>`
-    ).join('')}</div>`;
+    .sort((a,b) => b[1]-a[1]);
+
+  // Render cities mini-map
+  renderCitiesMap(topCities);
 
   // First time chart
   const ftYes = firstTime.filter(f=>/yes|y|true|1/i.test(f)).length;
