@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data ChangeMakers — Impact Banner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  background: #f5f4f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.banner {
+  width: 100%;
+  max-width: 1200px;
+  height: 400px;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(0,0,0,0.07);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 200px 1fr 1fr 260px;
+  grid-template-rows: 1fr;
+}
+
+/* ── Panel 1: KPIs ── */
+.panel-kpis {
+  background: #0F6E56;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.panel-kpis .logo { height: 36px; width: auto; margin-bottom: 16px; filter: brightness(0) invert(1); }
+.kpi-item { margin-bottom: 4px; }
+.kpi-val { font-size: 28px; font-weight: 700; color: #ffffff; line-height: 1; }
+.kpi-label { font-size: 10px; color: rgba(255,255,255,0.65); font-weight: 500; letter-spacing: 0.04em; margin-top: 1px; }
+.kpi-divider { width: 24px; height: 1px; background: rgba(255,255,255,0.2); margin: 8px 0; }
+.banner-tagline { font-size: 10px; color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-top: auto; }
+
+/* ── Panel 2: Hours chart ── */
+.panel-chart {
+  padding: 20px;
+  border-right: 1px solid rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+}
+.panel-title { font-size: 12px; font-weight: 700; color: #141412; margin-bottom: 2px; }
+.panel-sub { font-size: 10px; color: #b4b2a9; margin-bottom: 12px; }
+.chart-wrap { flex: 1; position: relative; min-height: 0; }
+
+/* ── Panel 3: Survey ── */
+.panel-survey {
+  padding: 20px;
+  border-right: 1px solid rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.survey-tabs { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+.stab {
+  font-family: inherit; font-size: 10px; font-weight: 600;
+  padding: 3px 8px; border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.1); background: transparent;
+  cursor: pointer; color: #888780;
+}
+.stab.active { background: #1D9E75; color: #fff; border-color: #1D9E75; }
+.survey-content { flex: 1; overflow: hidden; }
+.sbar-group { margin-bottom: 10px; }
+.sbar-org { font-size: 11px; font-weight: 600; color: #141412; margin-bottom: 4px; }
+.sbar-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.sbar-label { font-size: 9px; color: #b4b2a9; width: 52px; flex-shrink: 0; }
+.sbar-track { flex: 1; background: #f1efe8; border-radius: 2px; height: 6px; }
+.sbar-fill { height: 6px; border-radius: 2px; }
+.sbar-val { font-size: 9px; color: #b4b2a9; width: 22px; text-align: right; }
+
+/* ── Panel 4: Quote rotator ── */
+.panel-quotes {
+  background: #f9f8f6;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+.quote-mark { font-size: 32px; line-height: 1; color: #1D9E75; font-weight: 700; margin-bottom: 4px; }
+.quote-text {
+  font-size: 12px; color: #2c2c2a; line-height: 1.6;
+  font-style: italic; flex: 1;
+  display: -webkit-box; -webkit-line-clamp: 7;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.quote-org { font-size: 10px; color: #b4b2a9; font-weight: 600; margin-top: 10px; }
+.quote-dots { display: flex; gap: 5px; margin-top: 10px; }
+.qdot { width: 6px; height: 6px; border-radius: 50%; background: #d3d1c7; cursor: pointer; transition: background 0.2s; }
+.qdot.active { background: #1D9E75; }
+
+/* Loading */
+.loading { display: flex; align-items: center; justify-content: center; height: 400px; color: #888780; font-size: 13px; gap: 10px; }
+.spinner { width: 20px; height: 20px; border: 2px solid #e0deda; border-top-color: #1D9E75; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading">
+  <div class="spinner"></div>
+  Loading impact data...
+</div>
+
+<div class="banner" id="banner" style="display:none;">
+
+  <!-- Panel 1: KPIs -->
+  <div class="panel-kpis">
+    <div>
+      <img src="https://static.wixstatic.com/media/2608ce_4ffd1217cfad49bb950c7e852ea7dbc0~mv2.png/v1/crop/x_0,y_84,w_1280,h_857/fill/w_133,h_89,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/FullLogo_Transparent.png" alt="DCM" class="logo">
+      <div class="kpi-item">
+        <div class="kpi-val" id="b-hours">—</div>
+        <div class="kpi-label">Volunteer hours</div>
+      </div>
+      <div class="kpi-divider"></div>
+      <div class="kpi-item">
+        <div class="kpi-val" id="b-vols">—</div>
+        <div class="kpi-label">Volunteers</div>
+      </div>
+      <div class="kpi-divider"></div>
+      <div class="kpi-item">
+        <div class="kpi-val" id="b-orgs">—</div>
+        <div class="kpi-label">Nonprofits served</div>
+      </div>
+      <div class="kpi-divider"></div>
+      <div class="kpi-item">
+        <div class="kpi-val" id="b-submissions">—</div>
+        <div class="kpi-label">Submissions</div>
+      </div>
+    </div>
+    <div class="banner-tagline">Data for good</div>
+  </div>
+
+  <!-- Panel 2: Hours chart -->
+  <div class="panel-chart">
+    <div class="panel-title">Hours by organisation</div>
+    <div class="panel-sub">data visualisation projects</div>
+    <div class="chart-wrap">
+      <canvas id="b-hoursChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Panel 3: Survey -->
+  <div class="panel-survey">
+    <div class="panel-title">Pre vs post confidence</div>
+    <div class="survey-tabs" id="b-tabs">
+      <button class="stab active" onclick="bShowSurvey('data',this)">Data</button>
+      <button class="stab" onclick="bShowSurvey('literacy',this)">Literacy</button>
+      <button class="stab" onclick="bShowSurvey('impact',this)">Impact</button>
+      <button class="stab" onclick="bShowSurvey('decisions',this)">Decisions</button>
+    </div>
+    <div class="survey-content" id="b-survey"></div>
+  </div>
+
+  <!-- Panel 4: Quote rotator -->
+  <div class="panel-quotes">
+    <div>
+      <div class="quote-mark">"</div>
+      <div class="quote-text" id="b-quote-text"></div>
+      <div class="quote-org" id="b-quote-org"></div>
+    </div>
+    <div class="quote-dots" id="b-dots"></div>
+  </div>
+
+</div>
+
+<script>
+const API_KEY  = 'AIzaSyAtOXeiYk4A9KwEnj4LY3VB_ypJ8O69DlQ';
+const SHEET1_ID = '1bDquzEfAkV959pBQXG1zofloY5ZTEFQZaSfJSdS7StA';
+const SHEET1_TAB = 'Project Impact';
+const SHEET2_ID = '14jOgDE-a7-I7Rns9zERGTcA2ounblIdli2b5v-sWYSg';
+const SHEET2_TAB = 'All Submissions';
+
+const COL = {
+  CHARITY:3, TYPE:4, VOLS_PROJECT:5, HOURS_PROJECT:6, STUDENTS:12, GRAND_TOTAL:14,
+  PRE_DATA:15, POST_DATA:16, PRE_LITERACY:17, POST_LITERACY:18,
+  PRE_IMPACT:21, POST_IMPACT:22, PRE_DECISIONS:23, POST_DECISIONS:24,
+  OVERALL_SAT:33, QUOTES:35,
+};
+
+function v(row, col) { return row[col-1] !== undefined ? String(row[col-1]).trim() : ''; }
+function n(row, col) { return parseFloat(v(row, col).replace(/[$,]/g,'')) || 0; }
+
+async function fetchSheet(id, tab, skip = 1) {
+  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(tab)}?key=${API_KEY}`);
+  const json = await res.json();
+  return (json.values || []).slice(skip).filter(r => r.some(c => String(c).trim()));
+}
+
+let bSurveyData = {};
+let bQuotes = [];
+let bQuoteIdx = 0;
+let hoursChart = null;
+
+async function init() {
+  try {
+    const [rows1, rows2] = await Promise.all([
+      fetchSheet(SHEET1_ID, SHEET1_TAB, 1),
+      fetchSheet(SHEET2_ID, SHEET2_TAB, 1),
+    ]);
+
+    const projects = rows1.filter(r => v(r, COL.CHARITY).length > 1);
+
+    // KPIs
+    const totalHours = projects.reduce((s, r) => s + (n(r, COL.GRAND_TOTAL) || n(r, COL.HOURS_PROJECT)), 0);
+    const totalVols  = projects.reduce((s, r) => s + (n(r, COL.VOLS_PROJECT) || 0), 0);
+    const uniqueOrgs = new Set(projects.map(r => v(r, COL.CHARITY).replace(/\s*\(.*?\)/g,'').trim().toLowerCase())).size;
+
+    document.getElementById('b-hours').textContent = totalHours.toLocaleString();
+    document.getElementById('b-vols').textContent = totalVols;
+    document.getElementById('b-orgs').textContent = uniqueOrgs;
+    document.getElementById('b-submissions').textContent = rows2.length;
+
+    // Hours chart — viz projects only, merge No Kill Colorado
+    const orgMap = {};
+    projects.forEach(r => {
+      const type = v(r, COL.TYPE).toLowerCase();
+      if (!type.includes('visuali')) return;
+      const name = v(r, COL.CHARITY).replace(/\s*\(.*?\)/g,'').replace(/[Cc]ollorado/g,'Colorado').trim();
+      const hrs = n(r, COL.GRAND_TOTAL) || n(r, COL.HOURS_PROJECT);
+      orgMap[name] = (orgMap[name] || 0) + hrs;
+    });
+    const orgLabels = Object.keys(orgMap);
+    const orgVals   = Object.values(orgMap);
+
+    hoursChart = new Chart(document.getElementById('b-hoursChart'), {
+      type: 'bar',
+      data: {
+        labels: orgLabels.map(l => l.length > 10 ? l.slice(0,9)+'…' : l),
+        datasets: [{ data: orgVals, backgroundColor: '#1D9E75', borderRadius: 4, borderSkipped: false }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.raw.toLocaleString() + ' hrs' } } },
+        scales: {
+          x: { ticks: { font: { size: 9 }, maxRotation: 40, autoSkip: false }, grid: { display: false } },
+          y: { ticks: { font: { size: 9 } }, grid: { color: 'rgba(0,0,0,0.04)' } }
+        }
+      }
+    });
+
+    // Survey data
+    bSurveyData = {
+      data:      { title: 'Confident discussing data (1–5)', items: [] },
+      literacy:  { title: 'Data literacy is strong (1–5)', items: [] },
+      impact:    { title: 'Confident demonstrating impact (1–5)', items: [] },
+      decisions: { title: 'Making decisions with data (1–5)', items: [] },
+    };
+    projects.forEach(r => {
+      const org = v(r, COL.CHARITY).replace(/\s*\(.*?\)/g,'').replace(/[Cc]ollorado/g,'Colorado').trim();
+      const pd=n(r,COL.PRE_DATA)||null, qd=n(r,COL.POST_DATA)||null;
+      const pl=n(r,COL.PRE_LITERACY)||null, ql=n(r,COL.POST_LITERACY)||null;
+      const pi=n(r,COL.PRE_IMPACT)||null, qi=n(r,COL.POST_IMPACT)||null;
+      const pdc=n(r,COL.PRE_DECISIONS)||null, qdc=n(r,COL.POST_DECISIONS)||null;
+      if(pd||qd) bSurveyData.data.items.push({org, before:pd, after:qd});
+      if(pl||ql) bSurveyData.literacy.items.push({org, before:pl, after:ql});
+      if(pi||qi) bSurveyData.impact.items.push({org, before:pi, after:qi});
+      if(pdc||qdc) bSurveyData.decisions.items.push({org, before:pdc, after:qdc});
+    });
+    bShowSurvey('data', document.querySelector('.stab'));
+
+    // Quotes
+    bQuotes = projects.map(r => ({
+      text: v(r, COL.QUOTES),
+      org: v(r, COL.CHARITY).replace(/\s*\(.*?\)/g,'').trim()
+    })).filter(q => q.text.length > 20);
+    renderQuote(0);
+
+    // Auto-rotate quotes every 5s
+    setInterval(() => {
+      bQuoteIdx = (bQuoteIdx + 1) % bQuotes.length;
+      renderQuote(bQuoteIdx);
+    }, 5000);
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('banner').style.display = 'grid';
+
+  } catch(err) {
+    document.getElementById('loading').innerHTML = `<span style="color:#993c1d;">Failed to load: ${err.message}</span>`;
+  }
+}
+
+function bShowSurvey(key, btn) {
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const d = bSurveyData[key];
+  if (!d) return;
+  const el = document.getElementById('b-survey');
+  if (!d.items.length) { el.innerHTML = `<div style="font-size:11px;color:#b4b2a9;padding-top:6px;">No data yet.</div>`; return; }
+  el.innerHTML = d.items.map(item => `
+    <div class="sbar-group">
+      <div class="sbar-org">${item.org}</div>
+      ${item.before !== null ? `<div class="sbar-row">
+        <div class="sbar-label">Before</div>
+        <div class="sbar-track"><div class="sbar-fill" style="width:${item.before/5*100}%;background:#b4b2a9;"></div></div>
+        <div class="sbar-val">${item.before}/5</div>
+      </div>` : ''}
+      ${item.after !== null ? `<div class="sbar-row">
+        <div class="sbar-label">After</div>
+        <div class="sbar-track"><div class="sbar-fill" style="width:${item.after/5*100}%;background:#1D9E75;"></div></div>
+        <div class="sbar-val">${item.after}/5</div>
+      </div>` : ''}
+    </div>`).join('');
+}
+
+function renderQuote(idx) {
+  const q = bQuotes[idx];
+  if (!q) return;
+  // Trim to ~180 chars for the panel
+  const short = q.text.length > 200 ? q.text.slice(0, 197) + '…' : q.text;
+  document.getElementById('b-quote-text').textContent = short;
+  document.getElementById('b-quote-org').textContent = q.org;
+  // Dots
+  document.getElementById('b-dots').innerHTML = bQuotes.map((_, i) =>
+    `<div class="qdot ${i===idx?'active':''}" onclick="bQuoteIdx=${i};renderQuote(${i})"></div>`
+  ).join('');
+}
+
+init();
+</script>
+</body>
+</html>
