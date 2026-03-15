@@ -145,27 +145,16 @@
       <div class="chart-card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
           <div class="chart-title" id="survey-panel-title">Organisation impact</div>
-          <div style="display:flex;gap:4px;">
-            <button id="toggle-org" class="tab active" onclick="setSurveyPanel('org',this)" style="font-size:11px;padding:3px 10px;">Organisation impact</button>
-            <button id="toggle-vol" class="tab" onclick="setSurveyPanel('vol',this)" style="font-size:11px;padding:3px 10px;">Volunteer feedback</button>
-          </div>
+
         </div>
 
         <!-- Org survey view -->
         <div id="panel-org">
-          <div class="tabs">
-            <button class="tab active" onclick="showSurvey('data', this)">Data</button>
-            <button class="tab" onclick="showSurvey('literacy', this)">Literacy</button>
-            <button class="tab" onclick="showSurvey('impact', this)">Impact</button>
-            <button class="tab" onclick="showSurvey('decisions', this)">Decisions</button>
-          </div>
+          <div class="tabs" id="survey-tabs" style="margin-bottom:10px;"></div>
           <div id="survey-data" class="survey-section"></div>
         </div>
 
-        <!-- Volunteer feedback view -->
-        <div id="panel-vol" style="display:none;">
-          <div id="inline-fb-ratings" style="margin-top:4px;"></div>
-        </div>
+
       </div>
     </div>
 
@@ -231,8 +220,8 @@
       </div>
     </div>
 
-    <div class="section-label">Volunteer feedback</div>
-    <div class="fb-grid" id="fb-grid"></div>
+    <div class="section-label">Volunteer feedback — what they enjoyed</div>
+    <div id="fb-enjoyed-only" style="margin-bottom:1.5rem;"></div>
 
     <div class="section-label">Insights</div>
     <div class="insight-row" id="insight-row"></div>
@@ -272,6 +261,8 @@ const COL = {
   PRE_DATA:15, POST_DATA:16, PRE_LITERACY:17, POST_LITERACY:18,
   PRE_TOOLS:19, POST_SUPPORT:20, PRE_IMPACT:21, POST_IMPACT:22,
   PRE_DECISIONS:23, POST_DECISIONS:24,
+  POST_DCM_QUALITY:27, POST_PARTNER_AGAIN:28,
+  POST_PROGRAMS:30, POST_MEASURE:31,
   OVERALL_SAT:33, LIKELY_RECOMMEND:34, QUOTES:35,
 };
 
@@ -471,26 +462,66 @@ function renderDashboard(rows1, rows2, rows3) {
     }
   });
 
-  // ── Survey ───────────────────────────────────────────────────────────────
-  surveyData = {
-    data:      { title:'Confident discussing data internally (1–5)', items:[] },
-    literacy:  { title:'Overall data literacy is strong (1–5)', items:[] },
-    impact:    { title:'Confident demonstrating impact to funders (1–5)', items:[] },
-    decisions: { title:'Making decisions based on data (1–5)', items:[] },
-  };
-  orgs.forEach(org => {
-    org.surveyRows.forEach(row => {
-      const pd=n(row,COL.PRE_DATA), qd=n(row,COL.POST_DATA);
-      const pl=n(row,COL.PRE_LITERACY), ql=n(row,COL.POST_LITERACY);
-      const pi=n(row,COL.PRE_IMPACT), qi=n(row,COL.POST_IMPACT);
-      const pdc=n(row,COL.PRE_DECISIONS), qdc=n(row,COL.POST_DECISIONS);
-      if(pd||qd) surveyData.data.items.push({org:org.name,before:pd,after:qd});
-      if(pl||ql) surveyData.literacy.items.push({org:org.name,before:pl,after:ql});
-      if(pi||qi) surveyData.impact.items.push({org:org.name,before:pi,after:qi});
-      if(pdc||qdc) surveyData.decisions.items.push({org:org.name,before:pdc,after:qdc});
+  // ── Survey (post-project averaged) ──────────────────────────────────────
+  const surveyCategories = [
+    {
+      key: 'data',
+      tab: 'Data',
+      questions: [
+        { col: COL.POST_DATA,     label: 'More confident discussing and using data internally' },
+        { col: COL.POST_SUPPORT,  label: 'Data support from DCM was valuable' },
+      ]
+    },
+    {
+      key: 'literacy',
+      tab: 'Literacy',
+      questions: [
+        { col: COL.POST_LITERACY, label: 'Improved data literacy and confidence with data' },
+      ]
+    },
+    {
+      key: 'impact',
+      tab: 'Impact',
+      questions: [
+        { col: COL.POST_IMPACT,   label: 'Increased confidence demonstrating impact to funders' },
+        { col: COL.POST_PROGRAMS, label: 'Dashboards improved ability to deliver better programs' },
+        { col: COL.POST_MEASURE,  label: 'Better able to measure and share results with stakeholders' },
+      ]
+    },
+    {
+      key: 'decisions',
+      tab: 'Decisions',
+      questions: [
+        { col: COL.POST_DECISIONS, label: 'Better decisions using data' },
+      ]
+    },
+    {
+      key: 'dcm',
+      tab: 'DCM',
+      questions: [
+        { col: COL.POST_DCM_QUALITY,    label: 'Satisfied with quality of DCM support and contributions' },
+        { col: COL.POST_PARTNER_AGAIN,  label: 'Likely to partner with Data ChangeMakers again' },
+        { col: COL.OVERALL_SAT,         label: 'Overall satisfaction with the project' },
+        { col: COL.LIKELY_RECOMMEND,    label: 'Likely to recommend DCM to another nonprofit' },
+      ]
+    },
+  ];
+
+  surveyData = {};
+  surveyCategories.forEach(cat => {
+    const questionsWithVals = cat.questions.map(q => {
+      const vals = [];
+      orgs.forEach(org => {
+        org.surveyRows.forEach(row => {
+          const val = n(row, q.col);
+          if (val) vals.push(val);
+        });
+      });
+      return { label: q.label, vals };
     });
+    surveyData[cat.key] = { tab: cat.tab, questions: questionsWithVals };
   });
-  showSurvey('data', document.querySelector('.tab'));
+  renderOrgImpact('data');
 
   // ── Quotes ───────────────────────────────────────────────────────────────
   const allQuotes = orgs.flatMap(o=>o.quotes).filter(q=>q.text.length>20).slice(0,4);
@@ -665,7 +696,6 @@ function renderDashboard(rows1, rows2, rows3) {
   const topTool  = topN(toolCounts,1)[0];
 
   renderFeedback(rows3);
-  renderInlineFeedback(rows3);
 
   document.getElementById('insight-row').innerHTML = `
     <div class="insight-card">
@@ -694,136 +724,76 @@ function renderDashboard(rows1, rows2, rows3) {
 
 function renderFeedback(rows3) {
   const fbRows = (rows3 || []).filter(r => v(r, FB.OVERALL));
+  const el = document.getElementById('fb-enjoyed-only');
+  if (!el) return;
   if (!fbRows.length) {
-    document.getElementById('fb-grid').innerHTML = '<div style="font-size:13px;color:#b4b2a9;grid-column:1/-1;padding:1rem 0;">No feedback data yet.</div>';
+    el.innerHTML = '<div style="font-size:13px;color:#b4b2a9;">No feedback data yet.</div>';
     return;
   }
-
-  // Ratings card
-  const ratingKeys = [
-    { col: FB.OVERALL,    label: 'Overall experience' },
-    { col: FB.CHARITY_Q,  label: 'Charity choice' },
-    { col: FB.DATA,       label: 'Data & instructions' },
-    { col: FB.SUPPORT,    label: 'DCM support' },
-    { col: FB.LIVE,       label: 'Live event format' },
-  ];
-
-  const ratingsHtml = ratingKeys.map(({ col, label }) => {
-    const vals = fbRows.map(r => n(r, col)).filter(x => x > 0);
-    const avg = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
-    const rounded = Math.round(avg * 10) / 10;
-    const fullStars = Math.round(avg);
-    const stars = Array.from({length:5}, (_,i) =>
-      `<span class="fb-star" style="color:${i < fullStars ? '#ef9f27' : '#d3d1c7'}">★</span>`
-    ).join('');
-    return `<div class="fb-rating-row">
-      <div class="fb-rating-label">${label}</div>
-      <div class="fb-stars">${stars}</div>
-      <div class="fb-score">${rounded}/5</div>
-    </div>`;
-  }).join('');
-
-  // Enjoyed comments — pick up to 4 most recent, no names
+  // Enjoyed comments — up to 4 recent, anonymous
   const enjoyed = fbRows.map(r => v(r, FB.ENJOYED))
     .filter(t => t.length > 15).slice(-4).reverse();
-
-  const enjoyedHtml = enjoyed.map(t =>
-    `<div class="fb-comment">${t}</div>`
-  ).join('<div style="margin-bottom:6px;"></div>');
-
-  document.getElementById('fb-grid').innerHTML = `
-    <div class="fb-card">
-      <div class="chart-title" style="margin-bottom:14px;">Ratings <span style="font-size:11px;font-weight:400;color:#b4b2a9;">${fbRows.length} responses</span></div>
-      ${ratingsHtml}
-    </div>
-    <div class="fb-card">
-      <div class="chart-title" style="margin-bottom:12px;">What volunteers enjoyed</div>
-      ${enjoyedHtml || '<div style="font-size:12px;color:#b4b2a9;">No comments yet.</div>'}
-    </div>
-  `;
+  el.innerHTML = `<div class="quotes-grid">${
+    enjoyed.map(t => `<div class="quote-card">
+      <div class="quote-mark">"</div>
+      <div class="quote-text">${t}</div>
+    </div>`).join('')
+  }</div>`;
 }
 
-function setSurveyPanel(panel, btn) {
-  document.querySelectorAll('#toggle-org, #toggle-vol').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('panel-org').style.display = panel === 'org' ? 'block' : 'none';
-  document.getElementById('panel-vol').style.display = panel === 'vol' ? 'block' : 'none';
-  document.getElementById('survey-panel-title').textContent =
-    panel === 'org' ? 'Organisation impact' : 'Volunteer feedback';
-}
 
-function renderInlineFeedback(rows3) {
-  const fbRows = (rows3 || []).filter(r => v(r, FB.OVERALL));
-  const el = document.getElementById('inline-fb-ratings');
-  if (!el) return;
-  if (!fbRows.length) { el.innerHTML = '<div style="font-size:12px;color:#b4b2a9;padding-top:8px;">No feedback data yet.</div>'; return; }
 
-  const ratingKeys = [
-    { col: FB.OVERALL,   label: 'Overall experience' },
-    { col: FB.CHARITY_Q, label: 'Charity choice' },
-    { col: FB.DATA,      label: 'Data & instructions' },
-    { col: FB.SUPPORT,   label: 'DCM support' },
-    { col: FB.LIVE,      label: 'Live event format' },
-  ];
-
-  el.innerHTML = `
-    <div style="font-size:11px;color:#b4b2a9;margin-bottom:10px;">${fbRows.length} responses · avg ratings out of 5</div>
-    ${ratingKeys.map(({ col, label }) => {
-      const vals = fbRows.map(r => n(r, col)).filter(x => x > 0);
-      const avg = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
-      const rounded = (Math.round(avg * 10)/10).toFixed(1);
-      const fullStars = Math.round(avg);
-      const stars = Array.from({length:5},(_,i) =>
-        `<span style="font-size:16px;color:${i<fullStars?'#ef9f27':'#d3d1c7'}">★</span>`
-      ).join('');
-      return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-        <div style="font-size:12px;color:#888780;width:130px;flex-shrink:0;">${label}</div>
-        <div style="display:flex;gap:3px;align-items:center;">${stars}</div>
-        <div style="font-size:12px;font-weight:500;color:#1d9e75;">${parseFloat(rounded)%1===0?parseInt(rounded):rounded}/5</div>
-      </div>`;
-    }).join('')}
-  `;
-}
-
-function makeStars(val, type) {
-  if (val === null) return '';
-  const full = Math.round(val);
-  const fillColor = type === 'after' ? '#1d9e75' : '#ef9f27';
-  return Array.from({length:5}, (_,i) =>
-    `<span style="font-size:14px;color:${i<full?fillColor:'#d3d1c7'}">★</span>`
-  ).join('');
-}
-
-function showSurvey(key, btn) {
-  document.querySelectorAll('#panel-org .tab').forEach(t=>t.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  const d = surveyData[key];
-  if (!d) return;
+function renderOrgImpact(activeKey) {
   const container = document.getElementById('survey-data');
-  if (!d.items.length) {
-    container.innerHTML = `<div style="font-size:12px;color:#b4b2a9;padding-top:8px;">No survey data available for this dimension yet.</div>`;
+  const tabsEl = document.getElementById('survey-tabs');
+  if (!container || !surveyData) return;
+
+  const keys = Object.keys(surveyData);
+  const key = activeKey || keys[0];
+
+  // Render tabs
+  tabsEl.innerHTML = keys.map(k =>
+    `<button class="tab ${k===key?'active':''}" onclick="renderOrgImpact('${k}')">${surveyData[k].tab}</button>`
+  ).join('');
+
+  const cat = surveyData[key];
+  if (!cat) return;
+
+  const hasData = cat.questions.some(q => q.vals.length > 0);
+  if (!hasData) {
+    container.innerHTML = '<div style="font-size:12px;color:#b4b2a9;padding-top:8px;">No post-project survey data yet for this category.</div>';
     return;
   }
-  let html = `<div style="font-size:11px;color:#b4b2a9;margin-bottom:14px;">${d.title}</div>`;
-  d.items.forEach(item => {
-    html += `<div style="margin-bottom:14px;">
-      <div style="font-size:12px;font-weight:500;color:#1a1a18;margin-bottom:8px;">${item.org}</div>`;
-    if (item.before!==null) html += `
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
-        <div style="font-size:11px;color:#b4b2a9;width:90px;flex-shrink:0;">Before project</div>
-        <div style="display:flex;gap:2px;">${makeStars(item.before,'before')}</div>
-        <div style="font-size:11px;color:#b4b2a9;">${Number.isInteger(item.before)?item.before:parseFloat(item.before.toFixed(1))}/5</div>
+
+  let html = '<div style="font-size:11px;color:#b4b2a9;margin-bottom:12px;">Average post-project scores (1–5)</div>';
+  cat.questions.forEach(q => {
+    if (!q.vals.length) {
+      html += `<div style="margin-bottom:12px;">
+        <div style="font-size:12px;color:#888780;margin-bottom:4px;line-height:1.4;">${q.label}</div>
+        <div style="font-size:11px;color:#d3d1c7;">No data yet</div>
       </div>`;
-    if (item.after!==null) html += `
+      return;
+    }
+    const avg = q.vals.reduce((a,b)=>a+b,0)/q.vals.length;
+    const rounded = Math.round(avg*10)/10;
+    const display = rounded%1===0 ? Math.round(rounded) : rounded.toFixed(1);
+    const fullStars = Math.round(avg);
+    const stars = Array.from({length:5},(_,i)=>
+      `<span style="font-size:14px;color:${i<fullStars?'#1d9e75':'#d3d1c7'}">★</span>`
+    ).join('');
+    html += `<div style="margin-bottom:12px;">
+      <div style="font-size:12px;color:#888780;margin-bottom:5px;line-height:1.4;">${q.label}</div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <div style="font-size:11px;color:#b4b2a9;width:90px;flex-shrink:0;">After project</div>
-        <div style="display:flex;gap:2px;">${makeStars(item.after,'after')}</div>
-        <div style="font-size:11px;color:#1d9e75;font-weight:500;">${Number.isInteger(item.after)?item.after:parseFloat(item.after.toFixed(1))}/5</div>
-      </div>`;
-    html += '</div>';
+        <div style="display:flex;gap:2px;">${stars}</div>
+        <div style="font-size:12px;font-weight:500;color:#1d9e75;">${display}/5</div>
+        <div style="font-size:11px;color:#b4b2a9;">(${q.vals.length} response${q.vals.length>1?'s':''})</div>
+      </div>
+    </div>`;
   });
   container.innerHTML = html;
 }
+
+function showSurvey(key, btn) { renderOrgImpact(key); }
 
 loadAll();
 </script>
