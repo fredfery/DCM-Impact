@@ -704,6 +704,7 @@ function renderDashboard(rows1, rows2, rows3) {
   const topTool  = topN(toolCounts,1)[0];
 
   renderFeedback(rows3);
+  renderInlineFeedback(rows3);
 
   document.getElementById('insight-row').innerHTML = `
     <div class="insight-card">
