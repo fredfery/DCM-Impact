@@ -390,6 +390,13 @@ function renderDashboard(rows1, rows2, rows3) {
   const avgSat = avg(allSat);
   const totalSubmissions = rows2.length;
 
+  // Volunteer overall experience average from feedback sheet
+  const fbAllRows = (rows3 || []).filter(r => v(r, FB.OVERALL));
+  const fbOverallVals = fbAllRows.map(r => n(r, FB.OVERALL)).filter(x => x > 0);
+  const volOverallAvg = fbOverallVals.length
+    ? (Math.round(fbOverallVals.reduce((a,b)=>a+b,0)/fbOverallVals.length * 10) / 10).toFixed(1)
+    : null;
+
   document.getElementById('metric-grid').innerHTML = `
     <div class="metric metric-accent">
       <div class="metric-label">Volunteer hours</div>
@@ -411,15 +418,16 @@ function renderDashboard(rows1, rows2, rows3) {
       <div class="metric-value">${totalSubmissions}</div>
       <div class="metric-sub">across all projects</div>
     </div>
-    ${totalStudents > 0 ? `<div class="metric">
-      <div class="metric-label">Students trained</div>
-      <div class="metric-value">${totalStudents}</div>
-      <div class="metric-sub">learning/education</div>
-    </div>` : ''}
+
     ${avgSat ? `<div class="metric">
-      <div class="metric-label">Avg satisfaction</div>
+      <div class="metric-label">Organisation feedback</div>
       <div class="metric-value">${avgSat.toFixed(1)}/5</div>
-      <div class="metric-sub">post-project survey</div>
+      <div class="metric-sub">post-project survey avg</div>
+    </div>` : ''}
+    ${volOverallAvg ? `<div class="metric">
+      <div class="metric-label">Volunteer overall exp.</div>
+      <div class="metric-value">${volOverallAvg}/5</div>
+      <div class="metric-sub">volunteer feedback avg</div>
     </div>` : ''}
   `;
 
@@ -693,43 +701,22 @@ function renderFeedback(rows3) {
     </div>`;
   }).join('');
 
-  // Enjoyed comments — pick up to 3 most recent non-empty
-  const enjoyed = fbRows.map(r => ({
-    text: v(r, FB.ENJOYED),
-    name: [v(r, FB.FNAME), v(r, FB.LNAME)].filter(Boolean).join(' ') || 'Volunteer',
-    project: v(r, FB.PROJECT),
-  })).filter(c => c.text.length > 15).slice(-3).reverse();
+  // Enjoyed comments — pick up to 4 most recent, no names
+  const enjoyed = fbRows.map(r => v(r, FB.ENJOYED))
+    .filter(t => t.length > 15).slice(-4).reverse();
 
-  const enjoyedHtml = enjoyed.map(c =>
-    `<div class="fb-comment">${c.text}</div>
-     <div class="fb-comment-author">${c.name}${c.project ? ' — ' + c.project : ''}</div>`
-  ).join('<div style="margin-bottom:10px;"></div>');
-
-  // Improvements — pick up to 2
-  const improved = fbRows.map(r => ({
-    text: v(r, FB.IMPROVED),
-    name: [v(r, FB.FNAME), v(r, FB.LNAME)].filter(Boolean).join(' ') || 'Volunteer',
-  })).filter(c => c.text.length > 10).slice(-2).reverse();
-
-  const improvedHtml = improved.map(c =>
-    `<div class="fb-improve">${c.text}</div>
-     <div class="fb-comment-author" style="margin-bottom:8px;">${c.name}</div>`
-  ).join('');
+  const enjoyedHtml = enjoyed.map(t =>
+    `<div class="fb-comment">${t}</div>`
+  ).join('<div style="margin-bottom:6px;"></div>');
 
   document.getElementById('fb-grid').innerHTML = `
     <div class="fb-card">
       <div class="chart-title" style="margin-bottom:14px;">Ratings <span style="font-size:11px;font-weight:400;color:#b4b2a9;">${fbRows.length} responses</span></div>
       ${ratingsHtml}
     </div>
-    <div>
-      <div class="fb-card" style="margin-bottom:14px;">
-        <div class="chart-title" style="margin-bottom:12px;">What volunteers enjoyed</div>
-        ${enjoyedHtml || '<div style="font-size:12px;color:#b4b2a9;">No comments yet.</div>'}
-      </div>
-      ${improvedHtml ? `<div class="fb-card">
-        <div class="chart-title" style="margin-bottom:12px;">What could be improved</div>
-        ${improvedHtml}
-      </div>` : ''}
+    <div class="fb-card">
+      <div class="chart-title" style="margin-bottom:12px;">What volunteers enjoyed</div>
+      ${enjoyedHtml || '<div style="font-size:12px;color:#b4b2a9;">No comments yet.</div>'}
     </div>
   `;
 }
