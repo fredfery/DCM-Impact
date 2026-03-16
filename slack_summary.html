@@ -81,7 +81,7 @@
 <script>
   const CLAUDE_URL = "https://api.anthropic.com/v1/messages";
   // Use a CORS proxy to call Slack API from browser
-  const PROXY = "https://corsproxy.io/?";
+  const PROXY = "https://api.allorigins.win/raw?url=";
 
   const getAnthropicKey = () => document.getElementById("anthropic-key").value.trim();
   const getSlackToken = () => document.getElementById("slack-token").value.trim();
@@ -94,10 +94,8 @@
   function clearError() { document.getElementById("error").style.display = "none"; }
 
   async function slackGet(path) {
-    const url = PROXY + encodeURIComponent("https://slack.com/api/" + path);
-    const res = await fetch(url, {
-      headers: { "Authorization": "Bearer " + getSlackToken() }
-    });
+    const url = PROXY + encodeURIComponent("https://slack.com/api/" + path + (path.includes("?") ? "&" : "?") + "token=" + getSlackToken());
+    const res = await fetch(url);
     const data = await res.json();
     if (!data.ok) throw new Error("Slack error: " + (data.error || "unknown"));
     return data;
