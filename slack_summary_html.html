@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Slack Message Summarizer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #f4f4f4; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card { background: #fff; border-radius: 12px; padding: 32px; max-width: 640px; width: 100%; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .header { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+    h2 { font-size: 20px; }
+    label { font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px; margin-top: 14px; }
+    input, select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; }
+    .desc { color: #555; font-size: 14px; margin-bottom: 16px; }
+    .btn { background: #4A154B; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; cursor: pointer; margin-top: 18px; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-sec { background: #eee; color: #333; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; cursor: pointer; }
+    .btn-row { display: flex; gap: 10px; margin-top: 16px; }
+    .error { background: #fee2e2; color: #b91c1c; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+    .success { background: #d1fae5; color: #065f46; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+    .summary { background: #f8f8f8; border-radius: 10px; padding: 20px; white-space: pre-wrap; font-size: 14px; line-height: 1.7; color: #222; }
+    .loading { color: #555; font-size: 14px; margin-top: 12px; }
+    .note { font-size: 12px; color: #888; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <svg width="28" height="28" viewBox="0 0 54 54" fill="none">
+        <path d="M19.7 33.1a4.1 4.1 0 1 1-4.1-4.1h4.1v4.1zm2 0a4.1 4.1 0 0 1 8.2 0v10.2a4.1 4.1 0 1 1-8.2 0V33.1z" fill="#E01E5A"/>
+        <path d="M21.7 19.7a4.1 4.1 0 1 1 4.1-4.1v4.1h-4.1zm0 2a4.1 4.1 0 0 1 0 8.2H11.5a4.1 4.1 0 1 1 0-8.2h10.2z" fill="#36C5F0"/>
+        <path d="M35.1 21.7a4.1 4.1 0 1 1 4.1 4.1H35.1V21.7zm-2 0a4.1 4.1 0 0 1-8.2 0V11.5a4.1 4.1 0 1 1 8.2 0v10.2z" fill="#2EB67D"/>
+        <path d="M33.1 35.1a4.1 4.1 0 1 1-4.1 4.1V35.1h4.1zm0-2a4.1 4.1 0 0 1 0-8.2h10.2a4.1 4.1 0 1 1 0 8.2H33.1z" fill="#ECB22E"/>
+      </svg>
+      <h2>Slack Message Summarizer</h2>
+    </div>
+
+    <div id="error" class="error" style="display:none"></div>
+
+    <!-- Step 1: Keys -->
+    <div id="step-keys">
+      <p class="desc">Enter your API keys to connect to Slack and summarize messages using Claude.</p>
+      <label>Anthropic API Key</label>
+      <input id="anthropic-key" type="password" placeholder="sk-ant-..." />
+      <p class="note">Get yours at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></p>
+      <label>Slack Bot Token</label>
+      <input id="slack-token" type="password" placeholder="xoxb-..." />
+      <p class="note">Needs <code>channels:read</code>, <code>channels:history</code>, <code>groups:read</code>, <code>groups:history</code> scopes</p>
+      <button class="btn" onclick="fetchChannels()" id="btn-connect">Connect →</button>
+    </div>
+
+    <!-- Step 2: Pick channel -->
+    <div id="step-channel" style="display:none">
+      <div class="success">✅ Connected! Pick a channel to summarize.</div>
+      <label>Channel</label>
+      <select id="channel-select">
+        <option value="">— Select a channel —</option>
+      </select>
+      <label>Messages to fetch</label>
+      <select id="msg-limit">
+        <option value="25">25 messages</option>
+        <option value="50" selected>50 messages</option>
+        <option value="100">100 messages</option>
+        <option value="200">200 messages</option>
+      </select>
+      <button class="btn" onclick="fetchAndSummarize()" id="btn-summarize">Summarize →</button>
+    </div>
+
+    <!-- Step 3: Summary -->
+    <div id="step-summary" style="display:none">
+      <div class="summary" id="summary-output"></div>
+      <div class="btn-row">
+        <button class="btn" onclick="goBack()">← Another Channel</button>
+        <button class="btn-sec" onclick="copyText()">Copy</button>
+        <button class="btn-sec" onclick="reset()">Start Over</button>
+      </div>
+    </div>
+
+    <div id="loading" class="loading" style="display:none">⏳ <span id="loading-msg">Working...</span></div>
+  </div>
+
+  <script>
+    const CLAUDE = "https://api.anthropic.com/v1/messages";
+
+    function anthropicKey() { return document.getElementById("anthropic-key").value.trim(); }
+    function slackToken() { return document.getElementById("slack-token").value.trim(); }
+
+    function showError(msg) {
+      const el = document.getElementById("error");
+      el.textContent = "⚠️ " + msg;
+      el.style.display = "block";
+    }
+    function clearError() { document.getElementById("error").style.display = "none"; }
+    function setLoading(msg) {
+      document.getElementById("loading").style.display = msg ? "block" : "none";
+      if (msg) document.getElementById("loading-msg").textContent = msg;
+    }
+
+    async function callClaude(userMsg, systemMsg = "") {
+      const body = { model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content: userMsg }] };
+      if (systemMsg) body.system = systemMsg;
+      const res = await fetch(CLAUDE, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": anthropicKey(),
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      return data.content?.find(b => b.type === "text")?.text || "";
+    }
+
+    async function slackFetch(endpoint) {
+      // Route Slack API calls through Claude using web_search tool to bypass CORS
+      const res = await fetch(CLAUDE, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": anthropicKey(),
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          tools: [{ type: "web_search_20250305", name: "web_search" }],
+          system: `You are a Slack API proxy. Use web_search to fetch the given Slack API URL with the Authorization header "Bearer ${slackToken()}". Return ONLY the raw JSON from the response, nothing else.`,
+          messages: [{ role: "user", content: `Fetch this URL and return only the raw JSON response: ${endpoint}` }]
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      const text = data.content?.map(b => b.text || "").join("") || "";
+      const match = text.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error("Could not parse Slack response.");
+      return JSON.parse(match[0]);
+    }
+
+    async function fetchChannels() {
+      clearError();
+      if (!anthropicKey()) return showError("Please enter your Anthropic API key.");
+      if (!slackToken()) return showError("Please enter your Slack Bot Token.");
+      document.getElementById("btn-connect").disabled = true;
+      setLoading("Connecting to Slack...");
+      try {
+        const data = await slackFetch("https://slack.com/api/conversations.list?types=public_channel,private_channel&limit=100");
+        if (!data.ok) throw new Error(data.error || "Slack API error");
+        const sel = document.getElementById("channel-select");
+        data.channels.sort((a,b) => a.name.localeCompare(b.name)).forEach(c => {
+          const o = document.createElement("option");
+          o.value = c.id; o.textContent = "#" + c.name;
+          sel.appendChild(o);
+        });
+        document.getElementById("step-keys").style.display = "none";
+        document.getElementById("step-channel").style.display = "block";
+      } catch(e) { showError(e.message); }
+      document.getElementById("btn-connect").disabled = false;
+      setLoading(null);
+    }
+
+    async function fetchAndSummarize() {
+      clearError();
+      const ch = document.getElementById("channel-select").value;
+      const limit = document.getElementById("msg-limit").value;
+      if (!ch) return showError("Please select a channel.");
+      document.getElementById("btn-summarize").disabled = true;
+      setLoading("Fetching messages...");
+      try {
+        const data = await slackFetch(`https://slack.com/api/conversations.history?channel=${ch}&limit=${limit}`);
+        if (!data.ok) throw new Error(data.error || "Could not fetch messages");
+        const msgs = (data.messages || [])
+          .filter(m => m.type === "message" && m.text)
+          .reverse()
+          .map(m => `[${new Date(m.ts * 1000).toLocaleString()}] ${m.user || "bot"}: ${m.text}`)
+          .join("\n");
+        if (!msgs) throw new Error("No messages found in this channel.");
+        setLoading("Summarizing with Claude...");
+        const summary = await callClaude(
+          `Summarize these Slack messages. Highlight key topics, decisions, action items, and anything notable. Be concise and structured.\n\n${msgs}`
+        );
+        document.getElementById("summary-output").textContent = summary;
+        document.getElementById("step-channel").style.display = "none";
+        document.getElementById("step-summary").style.display = "block";
+      } catch(e) { showError(e.message); }
+      document.getElementById("btn-summarize").disabled = false;
+      setLoading(null);
+    }
+
+    function goBack() {
+      document.getElementById("step-summary").style.display = "none";
+      document.getElementById("step-channel").style.display = "block";
+      clearError();
+    }
+
+    function reset() {
+      document.getElementById("step-summary").style.display = "none";
+      document.getElementById("step-channel").style.display = "none";
+      document.getElementById("step-keys").style.display = "block";
+      document.getElementById("channel-select").innerHTML = '<option value="">— Select a channel —</option>';
+      clearError();
+    }
+
+    function copyText() {
+      const text = document.getElementById("summary-output").textContent;
+      navigator.clipboard.writeText(text).then(() => alert("Copied!"));
+    }
+  </script>
+</body>
+</html>
